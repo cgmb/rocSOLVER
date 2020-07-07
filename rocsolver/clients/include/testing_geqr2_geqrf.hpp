@@ -8,6 +8,7 @@
 #include "rocsolver.hpp"
 #include "cblas_interface.h"
 #include "clientcommon.hpp"
+#include "testing_common.hpp"
 
 
 template <bool STRIDED, bool GEQRF, typename T, typename U>
@@ -87,22 +88,22 @@ void testing_geqr2_geqrf_bad_arg()
 }
 
 
-template <bool CPU, bool GPU, typename T, typename Td, typename Ud, typename Th, typename Uh>
-void geqr2_geqrf_initData(const rocblas_handle handle, 
-                        const rocblas_int m, 
-                        const rocblas_int n, 
-                        Td &dA, 
-                        const rocblas_int lda, 
-                        const rocblas_stride stA, 
-                        Ud &dIpiv, 
-                        const rocblas_stride stP, 
+template <int FLAGS, typename Td, typename Ud, typename Th, typename Uh>
+void geqr2_geqrf_initData(const rocblas_handle /*handle*/,
+                        const rocblas_int m,
+                        const rocblas_int n,
+                        Td &dA,
+                        const rocblas_int lda,
+                        const rocblas_stride /*stA*/,
+                        Ud & /*dIpiv*/,
+                        const rocblas_stride /*stP*/,
                         const rocblas_int bc,
                         Th &hA,
-                        Uh &hIpiv)
+                        Uh & /*hIpiv*/)
 {
-    if (CPU)
+    if (FLAGS & rsHost)
     {
-        rocblas_init<T>(hA, true);
+        rocblas_init(hA, rsSeedReset);
 
         // scale A to avoid singularities 
         for (rocblas_int b = 0; b < bc; ++b) {
@@ -110,14 +111,14 @@ void geqr2_geqrf_initData(const rocblas_handle handle,
                 for (rocblas_int j = 0; j < n; j++) {
                     if (i == j)
                         hA[b][i + j * lda] += 400;
-                    else    
+                    else
                         hA[b][i + j * lda] -= 4;
                 }
             }
         }
     }
 
-    if (GPU)
+    if (FLAGS & rsDevice)
     {
         // now copy to the GPU
         CHECK_HIP_ERROR(dA.transfer_from(hA));
@@ -143,8 +144,7 @@ void geqr2_geqrf_getError(const rocblas_handle handle,
     std::vector<T> hW(n);
 
     // input data initialization 
-    geqr2_geqrf_initData<true,true,T>(handle, m, n, dA, lda, stA, dIpiv, stP, bc, 
-                                  hA, hIpiv);
+    geqr2_geqrf_initData<rsHost|rsDevice>(handle, m, n, dA, lda, stA, dIpiv, stP, bc, hA, hIpiv);
 
     // execute computations
     // GPU lapack
@@ -190,8 +190,7 @@ void geqr2_geqrf_getPerfData(const rocblas_handle handle,
     std::vector<T> hW(n);
 
     // cpu-lapack performance
-    geqr2_geqrf_initData<true,false,T>(handle, m, n, dA, lda, stA, dIpiv, stP, bc, 
-                                  hA, hIpiv);
+    geqr2_geqrf_initData<rsHost>(handle, m, n, dA, lda, stA, dIpiv, stP, bc, hA, hIpiv);
     *cpu_time_used = get_time_us();
     for (rocblas_int b = 0; b < bc; ++b) {
         GEQRF ?
@@ -199,14 +198,12 @@ void geqr2_geqrf_getPerfData(const rocblas_handle handle,
             cblas_geqr2<T>(m, n, hA[b], lda, hIpiv[b], hW.data());
     }
     *cpu_time_used = get_time_us() - *cpu_time_used;
-    geqr2_geqrf_initData<true,false,T>(handle, m, n, dA, lda, stA, dIpiv, stP, bc, 
-                                  hA, hIpiv);
+    geqr2_geqrf_initData<rsHost>(handle, m, n, dA, lda, stA, dIpiv, stP, bc, hA, hIpiv);
 
     // cold calls
     for(int iter = 0; iter < 2; iter++)
     {
-        geqr2_geqrf_initData<false,true,T>(handle, m, n, dA, lda, stA, dIpiv, stP, bc, 
-                                    hA, hIpiv);
+        geqr2_geqrf_initData<rsDevice>(handle, m, n, dA, lda, stA, dIpiv, stP, bc, hA, hIpiv);
 
         CHECK_ROCBLAS_ERROR(rocsolver_geqr2_geqrf(STRIDED,GEQRF,handle, m, n, dA.data(), lda, stA, dIpiv.data(), stP, bc));
     }
@@ -215,8 +212,7 @@ void geqr2_geqrf_getPerfData(const rocblas_handle handle,
     double start;
     for(rocblas_int iter = 0; iter < hot_calls; iter++)
     {
-        geqr2_geqrf_initData<false,true,T>(handle, m, n, dA, lda, stA, dIpiv, stP, bc, 
-                                    hA, hIpiv);
+        geqr2_geqrf_initData<rsDevice>(handle, m, n, dA, lda, stA, dIpiv, stP, bc, hA, hIpiv);
 
         start = get_time_us();
         rocsolver_geqr2_geqrf(STRIDED,GEQRF,handle, m, n, dA.data(), lda, stA, dIpiv.data(), stP, bc);
