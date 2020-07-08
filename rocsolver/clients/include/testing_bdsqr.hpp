@@ -57,7 +57,7 @@ void bdsqr_checkBadArgs(const rocblas_handle handle,
 template <typename T>
 void testing_bdsqr_bad_arg()
 {
-    typedef typename std::conditional<!is_complex<T>, T, decltype(std::real(T{}))>::type S;
+    using S = decltype(std::real(T{}));
 
     // safe arguments
     rocblas_local_handle handle;
@@ -116,7 +116,7 @@ void bdsqr_getError(const rocblas_handle handle,
                         Uh &hinfo,
                         double *max_err, double *max_errv)
 {
-    typedef typename std::conditional<!is_complex<T>, T, decltype(std::real(T{}))>::type S;
+    using S = decltype(std::real(T{}));
     std::vector<S> hW(4*n);
     std::vector<S> D(nv);
     std::vector<S> E(nv);
@@ -264,7 +264,7 @@ void bdsqr_getPerfData(const rocblas_handle handle,
                         double *cpu_time_used,
                         const rocblas_int hot_calls)
 {
-    typedef typename std::conditional<!is_complex<T>, T, decltype(std::real(T{}))>::type S;
+    using S = decltype(std::real(T{}));
     std::vector<S> hW(4*n);
     
     // cpu-lapack performance
@@ -287,7 +287,7 @@ void bdsqr_getPerfData(const rocblas_handle handle,
 template <typename T> 
 void testing_bdsqr(Arguments argus) 
 {
-    typedef typename std::conditional<!is_complex<T>, T, decltype(std::real(T{}))>::type S;
+    using S = decltype(std::real(T{}));
     
     // get arguments 
     rocblas_local_handle handle;
