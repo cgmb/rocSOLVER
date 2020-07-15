@@ -1,0 +1,10 @@
+FROM readthedocs/build:latest
+
+USER root:root
+RUN apt-get install -qq doxygen
+RUN pip3 install breathe sphinx sphinx_rtd_theme
+COPY --chown=docs:docs . /home/docs
+
+USER docs:docs
+WORKDIR /home/docs/rocsolver/docs
+RUN sh run_doc.sh
