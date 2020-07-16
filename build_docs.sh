@@ -3,4 +3,5 @@
 set -eu
 
 docker build --tag docs:latest -f docker/dockerfile-docs .
-docker cp "$(docker ps -alq):/home/docs/rocsolver/docs" built_docs
+container_id="$(docker create docs:latest)"
+docker cp "$container_id:/home/docs/rocsolver/docs" built_docs
