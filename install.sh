@@ -67,13 +67,18 @@ Options:
 EOF
 }
 
+# query terminal control codes
+grn=$(tput setaf 2) # green
+yel=$(tput setaf 3) # yellow
+rst=$(tput sgr0)    # reset
+
 # This function is helpful for dockerfiles that do not have sudo installed, but the default user is root
 # true is a system command that completes successfully, function returns success
 # prereq: ${ID} must be defined before calling
 supported_distro( )
 {
   if [ -z ${ID+foo} ]; then
-    printf "supported_distro(): \$ID must be set\n"
+    echo 'supported_distro(): $ID must be set'
     exit 2
   fi
 
@@ -81,7 +86,7 @@ supported_distro( )
     ubuntu|centos|rhel|fedora|sles|opensuse-leap)
         true
         ;;
-    *)  printf "This script is currently supported on Ubuntu, CentOS, RHEL, SLES, OpenSUSE-Leap, and Fedora\n"
+    *)  echo "This script is currently supported on Ubuntu, CentOS, RHEL, SLES, OpenSUSE-Leap, and Fedora"
         exit 2
         ;;
   esac
@@ -115,7 +120,7 @@ install_apt_packages( )
   package_dependencies=("$@")
   for package in "${package_dependencies[@]}"; do
     if [[ $(dpkg-query --show --showformat='${db:Status-Abbrev}\n' ${package} 2> /dev/null | grep -q "ii"; echo $?) -ne 0 ]]; then
-      printf "\033[32mInstalling \033[33m${package}\033[32m from distro package manager\033[0m\n"
+      echo "${grn}Installing ${yel}${package}${grn} from distro package manager${rst}"
       elevate_if_not_root apt install -y --no-install-recommends ${package}
     fi
   done
@@ -127,7 +132,7 @@ install_yum_packages( )
   package_dependencies=("$@")
   for package in "${package_dependencies[@]}"; do
     if [[ $package == *-PyYAML ]] || [[ $(yum list installed ${package} &> /dev/null; echo $? ) -ne 0 ]]; then
-      printf "\033[32mInstalling \033[33m${package}\033[32m from distro package manager\033[0m\n"
+      echo "${grn}Installing ${yel}${package}${grn} from distro package manager${rst}"
       elevate_if_not_root yum -y --nogpgcheck install ${package}
     fi
   done
@@ -139,7 +144,7 @@ install_dnf_packages( )
   package_dependencies=("$@")
   for package in "${package_dependencies[@]}"; do
     if [[ $package == *-PyYAML ]] || [[ $(dnf list installed ${package} &> /dev/null; echo $? ) -ne 0 ]]; then
-      printf "\033[32mInstalling \033[33m${package}\033[32m from distro package manager\033[0m\n"
+      echo "${grn}Installing ${yel}${package}${grn} from distro package manager${rst}"
       elevate_if_not_root dnf install -y ${package}
     fi
   done
@@ -150,7 +155,7 @@ install_zypper_packages( )
     package_dependencies=("$@")
     for package in "${package_dependencies[@]}"; do
         if [[ $(rpm -q ${package} &> /dev/null; echo $? ) -ne 0 ]]; then
-            printf "\033[32mInstalling \033[33m${package}\033[32m from distro package manager\033[0m\n"
+            echo "${grn}Installing ${yel}${package}${grn} from distro package manager${rst}"
             elevate_if_not_root zypper install -y ${package}
         fi
     done
@@ -177,12 +182,12 @@ install_msgpack_from_source( )
 install_packages( )
 {
   if [ -z ${ID+foo} ]; then
-    printf "install_packages(): \$ID must be set\n"
+    echo 'install_packages(): $ID must be set'
     exit 2
   fi
 
   if [ -z ${build_clients+foo} ]; then
-    printf "install_packages(): \$build_clients must be set\n"
+    echo 'install_packages(): $build_clients must be set'
     exit 2
   fi
 
@@ -400,7 +405,7 @@ while true; do
 done
 
 set -x
-printf "\033[32mCreating project build directory in: \033[33m${build_dir}\033[0m\n"
+echo "${grn}Creating project build directory in: ${yel}${build_dir}${rst}"
 
 # #################################################
 # prep
@@ -434,7 +439,7 @@ if [[ "${install_dependencies}" == true ]]; then
   if [[ "${build_clients}" == true ]]; then
     # The following builds googletest & lapack from source, installs into cmake default /usr/local
     pushd .
-    printf "\033[32mBuilding \033[33mgoogletest & lapack\033[32m from source; installing into \033[33m/usr/local\033[0m\n"
+    echo "${grn}Building ${yel}googletest & lapack${grn} from source; installing into ${yel}/usr/local${rst}"
     mkdir -p "${build_dir}/deps" && cd "${build_dir}/deps"
     ${cmake_executable} -lpthread -DBUILD_BOOST=OFF "${main}/rocblascommon/deps"
     make -j$(nproc)
