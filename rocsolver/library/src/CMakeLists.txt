@@ -3,28 +3,11 @@
 # ########################################################################
 
 # ########################################################################
-# A helper function to prefix a source list of files with a common path into a new list (non-destructive)
-# ########################################################################
-function( prepend_path prefix source_list_of_files return_list_of_files )
-  foreach( file ${${source_list_of_files}} )
-    if(IS_ABSOLUTE ${file} )
-      list( APPEND new_list ${file} )
-    else( )
-      list( APPEND new_list ${prefix}/${file} )
-    endif( )
-  endforeach( )
-  set( ${return_list_of_files} ${new_list} PARENT_SCOPE )
-endfunction( )
-
-# ########################################################################
 # Main
 # ########################################################################
 
 # package_targets is used as a list of install target
 set( package_targets rocsolver )
-
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
 
 set( rocsolver_auxiliary_source
   # vector & matrix manipulations
@@ -120,13 +103,6 @@ add_library( rocsolver
 
 add_library( roc::rocsolver ALIAS rocsolver )
 
-# Remove this check when we no longer build with older rocm stack(ie < 1.8.2)
-if(CMAKE_CXX_COMPILER MATCHES ".*/hipcc$")
-  target_link_libraries( rocsolver PRIVATE hip::device )
-else()
-  target_link_libraries( rocsolver PRIVATE hip::device hcc::hccshared )
-endif()
-
 # explicit xnack and sram-ecc compilation flags
 if( CMAKE_CXX_COMPILER MATCHES ".*/hipcc$" )
   target_compile_options( rocsolver PRIVATE -mno-xnack )
@@ -148,15 +124,6 @@ endif( )
 
 set_target_properties( rocsolver PROPERTIES CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON )
 
-if( CMAKE_CXX_COMPILER MATCHES ".*/hcc$" )
-  # Remove following when hcc is fixed; hcc emits following spurious warning ROCm v1.6.1
-  # "clang-5.0: warning: argument unused during compilation: '-isystem /opt/rocm/include'"
-  target_compile_options( rocsolver PRIVATE -Wno-unused-command-line-argument -fno-gpu-rdc )
-  foreach( target ${AMDGPU_TARGETS} )
-    target_compile_options( rocsolver PRIVATE --amdgpu-target=${target} )
-  endforeach( )
-endif( )
-
 target_include_directories( rocsolver
   PUBLIC  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/rocsolver/library/include>
           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -168,11 +135,10 @@ set_target_properties( rocsolver PROPERTIES CXX_EXTENSIONS NO )
 set_target_properties( rocsolver PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/staging" )
 rocm_set_soversion(rocsolver ${rocsolver_SOVERSION})
 
-
 # Package that helps me set visibility for function names exported from shared library
 include( GenerateExportHeader )
 set_target_properties( rocsolver PROPERTIES CXX_VISIBILITY_PRESET "hidden" VISIBILITY_INLINES_HIDDEN ON )
-generate_export_header( rocsolver EXPORT_FILE_NAME ${PROJECT_BINARY_DIR}/include/rocsolver-export.h )
+generate_export_header( rocsolver EXPORT_FILE_NAME "${PROJECT_BINARY_DIR}/include/rocsolver-export.h" )
 
 # Following Boost conventions of prefixing 'lib' on static built libraries, across all platforms
 if( NOT BUILD_SHARED_LIBS )
@@ -180,8 +146,11 @@ if( NOT BUILD_SHARED_LIBS )
 endif( )
 
 if(OPTIMAL)
-  target_compile_definitions(rocsolver PUBLIC OPTIMAL)
+  target_compile_definitions(rocsolver PRIVATE OPTIMAL)
 endif( )
+target_compile_definitions( rocsolver PRIVATE ROCM_USE_FLOAT16 )
+
+target_compile_options( rocsolver PRIVATE -Wno-unused-command-line-argument -Wno-pass-failed )
 
 add_armor_flags( rocsolver "${ARMOR_LEVEL}" )
 
@@ -195,7 +164,6 @@ rocm_install_targets(
     ${CMAKE_BINARY_DIR}/include
   PREFIX rocsolver
 )
-#         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 
 rocm_export_targets(
   TARGETS roc::rocsolver
