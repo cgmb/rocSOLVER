@@ -2604,6 +2604,52 @@ inline rocblas_status rocsolver_gelq2_gelqf(bool STRIDED,
 }
 /********************************************************/
 
+/******************** GELS ********************/
+// batched
+inline rocblas_status
+rocsolver_gels(bool STRIDED, rocblas_handle handle, rocblas_operation trans,
+               rocblas_int m, rocblas_int n, rocblas_int nrhs, float *const A[],
+               rocblas_int lda, float *const C[], rocblas_int ldc,
+               rocblas_int *info, rocblas_int *solution_info, rocblas_int bc) {
+  assert(!STRIDED);
+  return rocsolver_sgels_batched(handle, rocblas_operation_none, m, n, nrhs, A,
+                                 lda, C, ldc, info, solution_info, bc);
+}
+
+inline rocblas_status
+rocsolver_gels(bool STRIDED, rocblas_handle handle, rocblas_operation trans,
+               rocblas_int m, rocblas_int n, rocblas_int nrhs,
+               double *const A[], rocblas_int lda, double *const C[],
+               rocblas_int ldc, rocblas_int *info, rocblas_int *solution_info,
+               rocblas_int bc) {
+  assert(!STRIDED);
+  return rocsolver_dgels_batched(handle, rocblas_operation_none, m, n, nrhs, A,
+                                 lda, C, ldc, info, solution_info, bc);
+}
+
+inline rocblas_status
+rocsolver_gels(bool STRIDED, rocblas_handle handle, rocblas_operation trans,
+               rocblas_int m, rocblas_int n, rocblas_int nrhs,
+               rocblas_float_complex *const A[], rocblas_int lda,
+               rocblas_float_complex *const C[], rocblas_int ldc,
+               rocblas_int *info, rocblas_int *solution_info, rocblas_int bc) {
+  assert(!STRIDED);
+  return rocsolver_cgels_batched(handle, rocblas_operation_none, m, n, nrhs, A,
+                                 lda, C, ldc, info, solution_info, bc);
+}
+
+inline rocblas_status
+rocsolver_gels(bool STRIDED, rocblas_handle handle, rocblas_operation trans,
+               rocblas_int m, rocblas_int n, rocblas_int nrhs,
+               rocblas_double_complex *const A[], rocblas_int lda,
+               rocblas_double_complex *const C[], rocblas_int ldc,
+               rocblas_int *info, rocblas_int *solution_info, rocblas_int bc) {
+  assert(!STRIDED);
+  return rocsolver_zgels_batched(handle, rocblas_operation_none, m, n, nrhs, A,
+                                 lda, C, ldc, info, solution_info, bc);
+}
+/********************************************************/
+
 /******************** GEBD2_GEBRD ********************/
 // normal and strided_batched
 inline rocblas_status rocsolver_gebd2_gebrd(bool STRIDED,
