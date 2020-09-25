@@ -32,6 +32,11 @@ add_compile_options( -Wno-pass-failed )
 
 project( rocsolver LANGUAGES CXX )
 
+set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+endif()
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
@@ -194,7 +199,7 @@ include_directories( ${rocblas_INCLUDE_DIR} )
 
 
 # CMake list of machine targets
-set( AMDGPU_TARGETS gfx803;gfx900;gfx906;gfx908 CACHE STRING "List of specific machine types for library to target" )
+set( AMDGPU_TARGETS gfx906 CACHE STRING "List of specific machine types for library to target" )
 
 add_subdirectory( rocsolver/library )
 
