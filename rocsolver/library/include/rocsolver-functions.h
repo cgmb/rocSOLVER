@@ -4268,6 +4268,91 @@ ROCSOLVER_EXPORT rocblas_status rocsolver_zgelqf_strided_batched(
     const rocblas_stride strideA, rocblas_double_complex *ipiv,
     const rocblas_stride strideP, const rocblas_int batch_count);
 
+///@{
+/*! \brief GELS_BATCHED solves batches of over-determined linear systems defined
+by the array of m-by-n matrices A, and the array of n-by-nrhs matricies C.
+
+    \details
+    The problem solved by this function is of the form
+    \f[
+        min\in X_i \rVert C_i - A_i * X_i \rVert^2_2
+    \f]
+    where each result X_i is the least-squares solution to minimization problem
+i.
+
+    @param[in]
+    handle    rocblas_handle.
+    @param[in]
+    trans     rocblas_operation. Must be rocblas_operation_none.\n
+              Specifies whether to use matrix A or its conjugate
+    @param[in]
+    m         rocblas_int. m >= 0.\n
+              The number of rows of all matrices A_i in the batch.
+    @param[in]
+    n         rocblas_int. n >= 0.\n
+              The number of columns of all matrices A_i in the batch;
+              also the number of rows of all matrices C_i in the batch.
+    @param[in]
+    nrhs      rocblas_int. nrhs >= 0.\n
+              The number of columns of all matrices C_i and X_i in the batch;
+              i.e., the matrices on the right hand side.
+    @param[inout]
+    A         array of pointers to type. Each pointer points to an array on the
+              GPU of dimension lda*n.\n
+%On entry, the m-by-n matrices A_i to be factored.
+%On exit, the factors L_i and U_i from the factorizations.
+%The unit diagonal elements of L_i are not stored.
+    @param[in]
+    lda       rocblas_int. % lda >= m.\n
+              Specifies the leading dimension of matrices A_i.
+    @param[inout]
+    C         array of pointers to type. Each pointer points to an array on the
+              GPU of dimension % ldc*n.\n
+    @param[in]
+    ldc       rocblas_int. % ldc >= max(m,n).\n
+              Specifies the leading dimension of matrices A_i.
+    @param[out]
+    info      pointer to rocblas_int. Array of batch_count integers on the
+   GPU.\n If info_i = 0, successful exit for factorization of A_i. If info_i = j
+   > 0, U_i is singular. U_i(j,j) is the first zero pivot.
+    @param[out]
+    solution_info  pointer to rocblas_int (optional). Array of batch_count
+integers on the GPU.\n %
+    @param[in]
+    batch_count rocblas_int. batch_count >= 0.\n
+                Number of matrices in the batch.
+
+    ********************************************************************/
+
+ROCSOLVER_EXPORT rocblas_status rocsolver_sgels_batched(
+    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
+    const rocblas_int n, const rocblas_int nrhs, float *const A[],
+    const rocblas_int lda, float *const C[], const rocblas_int ldc,
+    rocblas_int *info, rocblas_int solution_info[],
+    const rocblas_int batch_count);
+
+ROCSOLVER_EXPORT rocblas_status rocsolver_dgels_batched(
+    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
+    const rocblas_int n, const rocblas_int nrhs, double *const A[],
+    const rocblas_int lda, double *const C[], const rocblas_int ldc,
+    rocblas_int *info, rocblas_int solution_info[],
+    const rocblas_int batch_count);
+
+ROCSOLVER_EXPORT rocblas_status rocsolver_cgels_batched(
+    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
+    const rocblas_int n, const rocblas_int nrhs,
+    rocblas_float_complex *const A[], const rocblas_int lda,
+    rocblas_float_complex *const C[], const rocblas_int ldc, rocblas_int *info,
+    rocblas_int solution_info[], const rocblas_int batch_count);
+
+ROCSOLVER_EXPORT rocblas_status rocsolver_zgels_batched(
+    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
+    const rocblas_int n, const rocblas_int nrhs,
+    rocblas_double_complex *const A[], const rocblas_int lda,
+    rocblas_double_complex *const C[], const rocblas_int ldc, rocblas_int *info,
+    rocblas_int solution_info[], const rocblas_int batch_count);
+///@}
+
 /*! \brief GEBD2 computes the bidiagonal form of a general m-by-n matrix A.
 
     \details

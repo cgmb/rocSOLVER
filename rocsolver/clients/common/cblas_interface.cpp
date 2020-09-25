@@ -206,6 +206,17 @@ void zgelqf_(int *m, int *n, rocblas_double_complex *A, int *lda,
              rocblas_double_complex *ipiv, rocblas_double_complex *work,
              int *lwork, int *info);
 
+void sgels_(char *trans, int *m, int *n, int *nrhs, float *A, int *lda,
+            float *B, int *ldb, float *work, int *lwork, int *info);
+void dgels_(char *trans, int *m, int *n, int *nrhs, double *A, int *lda,
+            double *B, int *ldb, double *work, int *lwork, int *info);
+void cgels_(char *trans, int *m, int *n, int *nrhs, rocblas_float_complex *A,
+            int *lda, rocblas_float_complex *B, int *ldb,
+            rocblas_float_complex *work, int *lwork, int *info);
+void zgels_(char *trans, int *m, int *n, int *nrhs, rocblas_double_complex *A,
+            int *lda, rocblas_double_complex *B, int *ldb,
+            rocblas_double_complex *work, int *lwork, int *info);
+
 void sgerq2_(int *m, int *n, float *A, int *lda, float *ipiv, float *work,
              int *info);
 void dgerq2_(int *m, int *n, double *A, int *lda, double *ipiv, double *work,
@@ -2203,6 +2214,45 @@ void cblas_gelq2<rocblas_double_complex>(rocblas_int m, rocblas_int n,
                                          rocblas_double_complex *work) {
   int info;
   zgelq2_(&m, &n, A, &lda, ipiv, work, &info);
+}
+
+// gels
+template <>
+void cblas_gels<float>(rocblas_operation transR, rocblas_int m, rocblas_int n,
+                       rocblas_int nrhs, float *A, rocblas_int lda, float *B,
+                       rocblas_int ldb, float *work, rocblas_int lwork) {
+  char trans = rocblas2char_operation(transR);
+  int info;
+  sgels_(&trans, &m, &n, &nrhs, A, &lda, B, &ldb, work, &lwork, &info);
+}
+
+template <>
+void cblas_gels<double>(rocblas_operation transR, rocblas_int m, rocblas_int n,
+                        rocblas_int nrhs, double *A, rocblas_int lda, double *B,
+                        rocblas_int ldb, double *work, rocblas_int lwork) {
+  char trans = rocblas2char_operation(transR);
+  int info;
+  dgels_(&trans, &m, &n, &nrhs, A, &lda, B, &ldb, work, &lwork, &info);
+}
+
+template <>
+void cblas_gels<rocblas_float_complex>(
+    rocblas_operation transR, rocblas_int m, rocblas_int n, rocblas_int nrhs,
+    rocblas_float_complex *A, rocblas_int lda, rocblas_float_complex *B,
+    rocblas_int ldb, rocblas_float_complex *work, rocblas_int lwork) {
+  char trans = rocblas2char_operation(transR);
+  int info;
+  cgels_(&trans, &m, &n, &nrhs, A, &lda, B, &ldb, work, &lwork, &info);
+}
+
+template <>
+void cblas_gels<rocblas_double_complex>(
+    rocblas_operation transR, rocblas_int m, rocblas_int n, rocblas_int nrhs,
+    rocblas_double_complex *A, rocblas_int lda, rocblas_double_complex *B,
+    rocblas_int ldb, rocblas_double_complex *work, rocblas_int lwork) {
+  char trans = rocblas2char_operation(transR);
+  int info;
+  zgels_(&trans, &m, &n, &nrhs, A, &lda, B, &ldb, work, &lwork, &info);
 }
 
 // gerqf

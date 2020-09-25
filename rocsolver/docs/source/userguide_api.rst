@@ -501,6 +501,13 @@ rocsolver_<type>gelqf_strided_batched()
 .. doxygenfunction:: rocsolver_dgelqf_strided_batched
 .. doxygenfunction:: rocsolver_sgelqf_strided_batched
 
+rocsolver_<type>gels_batched()
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. doxygenfunction:: rocsolver_zgels_batched
+.. doxygenfunction:: rocsolver_cgels_batched
+.. doxygenfunction:: rocsolver_dgels_batched
+.. doxygenfunction:: rocsolver_sgels_batched
+
 General Matrix Diagonalizations
 -------------------------------
 
