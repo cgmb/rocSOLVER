@@ -5,6 +5,7 @@
 #include "testing_bdsqr.hpp"
 #include "testing_gebd2_gebrd.hpp"
 #include "testing_gelq2_gelqf.hpp"
+//#include "testing_gels.hpp"
 #include "testing_geql2_geqlf.hpp"
 #include "testing_geqr2_geqrf.hpp"
 #include "testing_gesvd.hpp"
@@ -612,6 +613,17 @@ int main(int argc, char *argv[]) try {
       testing_gelq2_gelqf<false, true, 1, rocblas_float_complex>(argus);
     else if (precision == 'z')
       testing_gelq2_gelqf<false, true, 1, rocblas_double_complex>(argus);
+    /*
+      } else if (function == "gels_batched") {
+        if (precision == 's')
+          testing_gels<true, true, float>(argus);
+        else if (precision == 'd')
+          testing_gels<true, true, double>(argus);
+        else if (precision == 'c')
+          testing_gels<true, true, rocblas_float_complex>(argus);
+        else if (precision == 'z')
+          testing_gels<true, true, rocblas_double_complex>(argus);
+    */
   } else if (function == "getrs") {
     if (precision == 's')
       testing_getrs<false, false, float>(argus);
