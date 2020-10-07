@@ -708,8 +708,11 @@ rocsolver_<type>gelqf_strided_batched()
 rocsolver_<type>gels_batched()
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. doxygenfunction:: rocsolver_zgels_batched
+   :outline:
 .. doxygenfunction:: rocsolver_cgels_batched
+   :outline:
 .. doxygenfunction:: rocsolver_dgels_batched
+   :outline:
 .. doxygenfunction:: rocsolver_sgels_batched
 
 General Matrix Diagonalizations
