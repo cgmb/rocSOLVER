@@ -110,9 +110,9 @@ rocblas_status rocsolver_gels_template(
     // note: m > n
     // compute QR factorization of A
     T *work = (T *)void_work;
-    T **workArr = (T **)void_workArr;
+    T *workArr = (T *)void_workArr;
     T *diag = (T *)void_diag_trfact;
-    T *trfact = (T *)void_trfact_workTrmm;
+    T **trfact = (T **)void_trfact_workTrmm;
     rocsolver_geqrf_template<BATCHED, STRIDED>(
         handle, m, n, A, shiftA, lda, strideA, dIpiv, strideP, batch_count,
         scalars, work, workArr, diag, trfact);
@@ -120,9 +120,9 @@ rocblas_status rocsolver_gels_template(
   }
   {
       T *work = (T *)void_work;
-      T **workArr = (T **)void_workArr;
+      T *workArr = (T *)void_workArr;
       T *trfact = (T *)void_diag_trfact;
-      T *workTrmm = (T *)void_trfact_workTrmm;
+      T **workTrmm = (T **)void_trfact_workTrmm;
       rocsolver_ormqr_unmqr_template<BATCHED,STRIDED>(
           handle, rocblas_side_left, rocblas_operation_transpose, m, nrhs, n, A,
           shiftA, lda, strideA, dIpiv, strideP, C, shiftC, ldc, strideC,
