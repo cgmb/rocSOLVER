@@ -4,7 +4,7 @@
  *     Univ. of Tennessee, Univ. of California Berkeley,
  *     Univ. of Colorado Denver and NAG Ltd..
  *     December 2016
- * Copyright (c) 2019-2020 Advanced Micro Devices, Inc.
+ * Copyright (c) 2020 Advanced Micro Devices, Inc.
  * ***********************************************************************/
 
 #ifndef ROCLAPACK_GELS_HPP
@@ -15,30 +15,7 @@
 #include "roclapack_geqrf.hpp"
 #include "../auxiliary/rocauxiliary_ormqr_unmqr.hpp"
 
-template <typename T>
-rocblas_status
-rocsolver_gels_argCheck(rocblas_operation trans, const rocblas_int m,
-                        const rocblas_int n, const rocblas_int nrhs, T A,
-                        const rocblas_int lda, T C, const rocblas_int ldc,
-                        const rocblas_int batch_count) {
-  // order is important for unit tests:
-
-  // 1. invalid/non-supported values
-  if (trans != rocblas_operation_none)
-    return rocblas_status_invalid_value;
-
-  // 2. invalid size
-  if (n < 0 || nrhs < 0 || lda < m || ldc < n || batch_count < 0)
-    return rocblas_status_invalid_size;
-
-  // 3. invalid pointers
-  if ((n && !A) || (n && !C))
-    return rocblas_status_invalid_pointer;
-
-  return rocblas_status_continue;
-}
-
-template <bool BATCHED, typename T>
+template <bool BATCHED, bool STRIDED, typename T>
 void rocsolver_gels_getMemorySize(const rocblas_int m, const rocblas_int n, const rocblas_int nrhs,
                                    const rocblas_int batch_count,
                                    size_t *size_scalars, size_t *size_2,
@@ -74,14 +51,36 @@ void rocsolver_gels_getMemorySize(const rocblas_int m, const rocblas_int n, cons
   *size_5 = std::max({geqrf_trfact, ormqr_workTrmm, trsm_invA_arr});
 }
 
-template <bool BATCHED, typename T>
+template <typename T>
+rocblas_status
+rocsolver_gels_argCheck(rocblas_operation trans, const rocblas_int m,
+                        const rocblas_int n, const rocblas_int nrhs, T A,
+                        const rocblas_int lda, T C, const rocblas_int ldc,
+                        const rocblas_int batch_count = 1) {
+  // order is important for unit tests:
+  // 1. invalid/non-supported values
+  if (trans != rocblas_operation_none)
+    return rocblas_status_invalid_value;
+
+/*
+  // 2. invalid size
+  if (n < 0 || nrhs < 0 || lda < m || ldc < n || batch_count < 0)
+    return rocblas_status_invalid_size;
+
+  // 3. invalid pointers
+  if ((n && !A) || (n && !C))
+    return rocblas_status_invalid_pointer;
+*/
+  return rocblas_status_continue;
+}
+
+template <bool BATCHED, bool STRIDED, typename T, typename U>
 rocblas_status rocsolver_gels_template(
     rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
-    const rocblas_int n, const rocblas_int nrhs, T *const *A,
-    const rocblas_int lda, T *const *C, const rocblas_int ldc,
-    rocblas_int *info, rocblas_int* solution_info,
-    const rocblas_int batch_count, T* scalars, void* void_work, void* void_workArr, void* void_diag_trfact, void* void_trfact_workTrmm) {
-  static_assert(BATCHED, "only the batched version is implemented");
+    const rocblas_int n, const rocblas_int nrhs, U A, const rocblas_int shiftA,
+    const rocblas_int lda, const rocblas_stride strideA, U C, const rocblas_int shiftC, const rocblas_int ldc, const rocblas_stride strideC,
+    rocblas_int *info, const rocblas_int batch_count, T* scalars, void* void_work, void* void_workArr, void* void_diag_trfact, void* void_trfact_workTrmm) {
+
   // quick return
   if (n == 0 || nrhs == 0 || batch_count == 0) {
     return rocblas_status_success;
@@ -100,12 +99,7 @@ rocblas_status rocsolver_gels_template(
   T *dIpiv;
   hipMalloc(&dIpiv, sizeof(T) * pivot_count_per_batch * batch_count);
 
-  constexpr rocblas_int shiftA = 0;
-  constexpr rocblas_int shiftC = 0;
-  constexpr rocblas_stride strideA = 0;
-  constexpr rocblas_stride strideC = 0;
   constexpr rocblas_stride strideP = 0;
-  constexpr bool STRIDED = false;
   {
     // note: m > n
     // compute QR factorization of A
@@ -116,7 +110,6 @@ rocblas_status rocsolver_gels_template(
     rocsolver_geqrf_template<BATCHED, STRIDED>(
         handle, m, n, A, shiftA, lda, strideA, dIpiv, strideP, batch_count,
         scalars, work, workArr, diag, trfact);
-    // what if the result is not success?
   }
   {
       T *work = (T *)void_work;
@@ -127,7 +120,6 @@ rocblas_status rocsolver_gels_template(
           handle, rocblas_side_left, rocblas_operation_transpose, m, nrhs, n, A,
           shiftA, lda, strideA, dIpiv, strideP, C, shiftC, ldc, strideC,
           batch_count, scalars, work, workArr, trfact, workTrmm);
-      // again, what about failure?
   }
   {
       // this is implementing strtrs inline
@@ -144,7 +136,6 @@ rocblas_status rocsolver_gels_template(
                                 &one, A, shiftA, lda, strideA, C, shiftC, ldc,
                                 strideC, batch_count, optimal_memory, x_temp,
                                 x_temp_arr, invA, invA_arr/*, workArr ? */);
-      // failure?
   }
 
   rocblas_set_pointer_mode(handle, old_mode);
