@@ -1,5 +1,5 @@
 /* ************************************************************************
- * Copyright (c) 2019-2020 Advanced Micro Devices, Inc.
+ * Copyright (c) 2020 Advanced Micro Devices, Inc.
  * ************************************************************************ */
 
 #include "roclapack_gels.hpp"
@@ -20,33 +20,41 @@ rocblas_status rocsolver_gels_impl(
   if (st != rocblas_status_continue)
     return st;
 
-  constexpr rocblas_int batch_count = 1;
-  constexpr rocblas_int shiftA = 0;
-  constexpr rocblas_stride strideA = 0;
-  constexpr rocblas_int shiftC = 0;
-  constexpr rocblas_stride strideC = 0;
+  const rocblas_int batch_count = 1;
+  const rocblas_int shiftA = 0;
+  const rocblas_stride strideA = 0;
+  const rocblas_int shiftC = 0;
+  const rocblas_stride strideC = 0;
+  const rocblas_stride strideP = 0;
+  const bool optim_mem = true;
 
-  size_t size_scalars, size_2, size_3, size_4, size_5;
+  size_t size_scalars, size_work_x_temp, size_workArr_temp_arr, size_diag_trfac_invA, size_trfact_workTrmm_invA_arr, size_ipiv;
   rocsolver_gels_getMemorySize<false,false,T>(m, n, nrhs, batch_count,
-    &size_scalars, &size_2, &size_3, &size_4, &size_5);
+    &size_scalars, &size_work_x_temp, &size_workArr_temp_arr, &size_diag_trfac_invA, &size_trfact_workTrmm_invA_arr, &size_ipiv);
 
   if (rocblas_is_device_memory_size_query(handle))
     return rocblas_set_optimal_device_memory_size(handle, size_scalars,
-                                                  size_2, size_3,
-                                                  size_4, size_5);
+                                                  size_work_x_temp, size_workArr_temp_arr,
+                                                  size_diag_trfac_invA, size_trfact_workTrmm_invA_arr, size_ipiv);
   // memory workspace allocation
-  rocblas_device_malloc mem(handle, size_scalars, size_2, size_3, size_4, size_5);
+  void *scalars, *work, *workArr, *diag_trfac_invA, *trfact_workTrmm_invA, *ipiv;
+  rocblas_device_malloc mem(handle, size_scalars, size_work_x_temp, size_workArr_temp_arr, size_diag_trfac_invA, size_trfact_workTrmm_invA_arr, size_ipiv);
   if (!mem)
     return rocblas_status_memory_error;
 
-  T *scalars = (T *)mem[0];
+  scalars = mem[0];
+  work = mem[1];
+  workArr = mem[2];
+  diag_trfac_invA = mem[3];
+  trfact_workTrmm_invA = mem[4];
+  ipiv = mem[5];
   T sca[] = {-1, 0, 1};
-  RETURN_IF_HIP_ERROR(
-      hipMemcpy(scalars, sca, size_scalars, hipMemcpyHostToDevice));
+  RETURN_IF_HIP_ERROR(hipMemcpy(scalars, sca, size_scalars, hipMemcpyHostToDevice));
 
   return rocsolver_gels_template<false,false>(handle, trans, m,
     n, nrhs, A, shiftA, lda, strideA, C, shiftC, ldc, strideC,
-    info, batch_count, scalars, mem[1], mem[2], mem[3], mem[4]);
+    (T*)ipiv, strideP,
+    info, batch_count, (T*)scalars, work, workArr, diag_trfac_invA, trfact_workTrmm_invA, optim_mem);
 }
 
 /*

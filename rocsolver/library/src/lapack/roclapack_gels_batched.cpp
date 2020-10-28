@@ -26,63 +26,39 @@ rocblas_status rocsolver_gels_batched_impl(
   const rocblas_stride strideA = 0;
   const rocblas_int shiftC = 0;
   const rocblas_stride strideC = 0;
+  const rocblas_stride strideP = 0;
+  const bool optim_mem = true;
 
-  size_t size_scalars, size_2, size_3, size_4, size_5;
+  size_t size_scalars, size_work_x_temp, size_workArr_temp_arr, size_diag_trfac_invA, size_trfact_workTrmm_invA_arr, size_ipiv;
   rocsolver_gels_getMemorySize<true, false, T>(m, n, nrhs, batch_count,
-    &size_scalars, &size_2, &size_3, &size_4, &size_5);
+    &size_scalars, &size_work_x_temp, &size_workArr_temp_arr, &size_diag_trfac_invA, &size_trfact_workTrmm_invA_arr, &size_ipiv);
 
   if (rocblas_is_device_memory_size_query(handle))
     return rocblas_set_optimal_device_memory_size(handle, size_scalars,
-                                                  size_2, size_3,
-                                                  size_4, size_5);
+                                                  size_work_x_temp, size_workArr_temp_arr,
+                                                  size_diag_trfac_invA, size_trfact_workTrmm_invA_arr, size_ipiv);
   // memory workspace allocation
-  rocblas_device_malloc mem(handle, size_scalars, size_2, size_3, size_4, size_5);
+  void *scalars, *work, *workArr, *diag_trfac_invA, *trfact_workTrmm_invA, *ipiv;
+  rocblas_device_malloc mem(handle, size_scalars, size_work_x_temp, size_workArr_temp_arr, size_diag_trfac_invA, size_trfact_workTrmm_invA_arr, size_ipiv);
   if (!mem)
     return rocblas_status_memory_error;
 
-  T *scalars = (T *)mem[0];
+  scalars = mem[0];
+  work = mem[1];
+  workArr = mem[2];
+  diag_trfac_invA = mem[3];
+  trfact_workTrmm_invA = mem[4];
+  ipiv = mem[5];
   T sca[] = {-1, 0, 1};
   RETURN_IF_HIP_ERROR(
       hipMemcpy(scalars, sca, size_scalars, hipMemcpyHostToDevice));
 
   return rocsolver_gels_template<true, false, T>(handle, trans, m,
     n, nrhs, A, shiftA, lda, strideA, C, shiftC, ldc, strideC,
-    info, batch_count, scalars, mem[1], mem[2], mem[3], mem[4]);
+    (T*)ipiv, strideP,
+    info, batch_count, (T*)scalars, work, workArr, diag_trfac_invA, trfact_workTrmm_invA, optim_mem);
 }
-/*
-    // working with unshifted arrays
-    rocblas_int shiftA = 0;
 
-    // batched execution
-    rocblas_stride strideA = 0;
-
-    // memory workspace sizes:
-    // size for constants in rocblas calls
-    size_t size_scalars;
-    // size of arrays of pointers (for batched cases) and re-usable workspace
-    size_t size_work_workArr;
-    // extra requirements for calling larf and larfg
-    size_t size_Abyx_norms;
-    rocsolver_gebd2_getMemorySize<T, true>(m, n, batch_count, &size_scalars, &size_work_workArr,
-                                           &size_Abyx_norms);
-
-    if(rocblas_is_device_memory_size_query(handle))
-        return rocblas_set_optimal_device_memory_size(handle, size_scalars, size_work_workArr,
-                                                      size_Abyx_norms);
-
-    // memory workspace allocation
-    void *scalars, *work_workArr, *Abyx_norms;
-    rocblas_device_malloc mem(handle, size_scalars, size_work_workArr, size_Abyx_norms);
-
-    if(!mem)
-        return rocblas_status_memory_error;
-
-    scalars = mem[0];
-    work_workArr = mem[1];
-    Abyx_norms = mem[2];
-    T sca[] = {-1, 0, 1};
-    RETURN_IF_HIP_ERROR(hipMemcpy((T*)scalars, sca, size_scalars, hipMemcpyHostToDevice));
-*/
 /*
  * ===========================================================================
  *    C wrapper

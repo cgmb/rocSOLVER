@@ -32,56 +32,41 @@ rocblas_status rocsolver_gels_strided_batched_impl(rocblas_handle handle,
     // working with unshifted arrays
   const rocblas_int shiftA = 0;
   const rocblas_int shiftC = 0;
+    const bool optim_mem = true;
 
-    // memory workspace sizes:
-    // size for constants in rocblas calls
-//    size_t size_scalars;
-    // size of reusable workspace (and for calling TRSM)
-//    size_t size_work, size_work1, size_work2, size_work3, size_work4;
-    // extra requirements for calling GETF2
-//    size_t size_pivotval, size_pivotidx;
-    // size to store info about singularity of each subblock
-//    size_t size_iinfo;
-
-    size_t size_scalars, size_2, size_3, size_4, size_5;
+    size_t size_scalars, size_work_x_temp, size_workArr_temp_arr, size_diag_trfac_invA, size_trfact_workTrmm_invA_arr, size_ipiv;
     rocsolver_gels_getMemorySize<false,true,T>(m, n, nrhs, batch_count,
-      &size_scalars, &size_2, &size_3, &size_4, &size_5);
+      &size_scalars, &size_work_x_temp, &size_workArr_temp_arr, &size_diag_trfac_invA, &size_trfact_workTrmm_invA_arr, &size_ipiv);
 
   if (rocblas_is_device_memory_size_query(handle))
     return rocblas_set_optimal_device_memory_size(handle, size_scalars,
-                                                  size_2, size_3,
-                                                  size_4, size_5);
+                                                  size_work_x_temp, size_workArr_temp_arr,
+                                                  size_diag_trfac_invA, size_trfact_workTrmm_invA_arr, size_ipiv);
   // memory workspace allocation
-  rocblas_device_malloc mem(handle, size_scalars, size_2, size_3, size_4, size_5);
+  rocblas_device_malloc mem(handle, size_scalars, size_work_x_temp, size_workArr_temp_arr, size_diag_trfac_invA, size_trfact_workTrmm_invA_arr, size_ipiv);
   if (!mem)
     return rocblas_status_memory_error;
 
-    // always allocate all required memory for TRSM optimal performance
-    const bool optimial_memory = true;
-
     // memory workspace allocation
-    void *scalars, *work1, *work2, *work3, *work4;
-    rocblas_device_malloc mem(handle, size_scalars, size_2, size_3, size_4, size_5);
+    void *scalars, *work_x_temp, *workArr_temp_arr, *diag_trfac_invA, *trfact_workTrmm_invA_arr, *ipiv;
+    rocblas_device_malloc mem(handle, size_scalars, size_work_x_temp, size_workArr_temp_arr, size_diag_trfac_invA, size_trfact_workTrmm_invA_arr, size_ipiv);
 
     if(!mem)
         return rocblas_status_memory_error;
 
     scalars = mem[0];
-    work1 = mem[1];
-    work2 = mem[2];
-    work3 = mem[3];
-    work4 = mem[4];
+    work_x_temp = mem[1];
+    workArr_temp_arr = mem[2];
+    diag_trfac_invA = mem[3];
+    trfact_workTrmm_invA_arr = mem[4];
+    ipiv = mem[5];
     T sca[] = {-1, 0, 1};
-    RETURN_IF_HIP_ERROR(hipMemcpy((T*)scalars, sca, size_scalars, hipMemcpyHostToDevice));
+    RETURN_IF_HIP_ERROR(hipMemcpy(scalars, sca, size_scalars, hipMemcpyHostToDevice));
 
   return rocsolver_gels_template<false, true, T>(handle, trans, m,
     n, nrhs, A, shiftA, lda, strideA, C, shiftC, ldc, strideC,
-    info, batch_count, scalars, work1, work2, work3, work4);
-/*
-    return rocsolver_gels_template<false, true, T>(
-        handle, m, n, A, shiftA, lda, strideA, ipiv, shiftP, strideP, info, batch_count, pivot,
-        (T*)scalars, work1, work2, work3, work4);
-*/
+    (T*)ipiv, strideP,
+    info, batch_count, (T*)scalars, work_x_temp, workArr_temp_arr, diag_trfac_invA, trfact_workTrmm_invA_arr, optim_mem);
 }
 
 /*
