@@ -11,35 +11,36 @@
 
 template <bool STRIDED, typename T>
 void gels_checkBadArgs(const rocblas_handle handle,
-                        const rocblas_operation trans,
-                        const rocblas_int m,
-                        const rocblas_int n,
-                        const rocblas_int nrhs,
-                        T dA,
-                        const rocblas_int lda,
-                        const rocblas_stride stA,
-                        T dC,
-                        const rocblas_int ldc,
-                        const rocblas_stride stC,
-                        rocblas_int* info,
-                        const rocblas_int bc)
-{//add n, remove dIpiv, stp, b->c, dInfo
+                       const rocblas_operation trans,
+                       const rocblas_int m,
+                       const rocblas_int n,
+                       const rocblas_int nrhs,
+                       T dA,
+                       const rocblas_int lda,
+                       const rocblas_stride stA,
+                       T dC,
+                       const rocblas_int ldc,
+                       const rocblas_stride stC,
+                       rocblas_int* info,
+                       const rocblas_int bc)
+{ //add n, remove dIpiv, stp, b->c, dInfo
     // handle
-    EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, nullptr, trans, m, n, nrhs, dA, lda, stA,
-                                          dC, ldc, stC, info, bc),
-                          rocblas_status_invalid_handle);
+    EXPECT_ROCBLAS_STATUS(
+        rocsolver_gels(STRIDED, nullptr, trans, m, n, nrhs, dA, lda, stA, dC, ldc, stC, info, bc),
+        rocblas_status_invalid_handle);
 
     // values
-    EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, rocblas_operation(-1), m, n, nrhs, dA, lda, stA, dC, ldc, stC, info, bc),
+    EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, rocblas_operation(-1), m, n, nrhs, dA,
+                                         lda, stA, dC, ldc, stC, info, bc),
                           rocblas_status_invalid_value);
 
     // sizes (only check batch_count if applicable)
     if(STRIDED)
-        EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, m, n, nrhs, dA, lda, stA,
-                                              dC, ldc, stC, info, -1),
+        EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, m, n, nrhs, dA, lda, stA, dC,
+                                             ldc, stC, info, -1),
                               rocblas_status_invalid_size);
 
-/*
+    /*
     // pointers
     EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, m, nrhs, (T) nullptr, lda, stA,
                                           dIpiv, stP, dC, ldc, stC, bc),
@@ -81,7 +82,7 @@ void testing_gels_bad_arg()
     rocblas_stride stC = 1;
     rocblas_int bc = 1;
     rocblas_operation trans = rocblas_operation_none;
-/*
+    /*
     if(BATCHED)
     {
         // memory allocations
@@ -98,38 +99,39 @@ void testing_gels_bad_arg()
     }
     else
     {*/
-        // memory allocations
-        device_strided_batch_vector<T> dA(1, 1, 1, 1);
-        device_strided_batch_vector<T> dC(1, 1, 1, 1);
-        device_strided_batch_vector<rocblas_int> dInfo(1, 1, 1, 1);
-        CHECK_HIP_ERROR(dA.memcheck());
-        CHECK_HIP_ERROR(dC.memcheck());
-        CHECK_HIP_ERROR(dInfo.memcheck());
+    // memory allocations
+    device_strided_batch_vector<T> dA(1, 1, 1, 1);
+    device_strided_batch_vector<T> dC(1, 1, 1, 1);
+    device_strided_batch_vector<rocblas_int> dInfo(1, 1, 1, 1);
+    CHECK_HIP_ERROR(dA.memcheck());
+    CHECK_HIP_ERROR(dC.memcheck());
+    CHECK_HIP_ERROR(dInfo.memcheck());
 
-        // check bad arguments
-        gels_checkBadArgs<STRIDED>(handle, trans, m, n, nrhs, dA.data(), lda, stA,                                    dC.data(), ldc, stC, dInfo.data(), bc);
-//    }
+    // check bad arguments
+    gels_checkBadArgs<STRIDED>(handle, trans, m, n, nrhs, dA.data(), lda, stA, dC.data(), ldc, stC,
+                               dInfo.data(), bc);
+    //    }
 }
 
 template <bool CPU, bool GPU, typename T, typename Td, typename Ud, typename Th, typename Uh>
 void gels_initData(const rocblas_handle handle,
-                    const rocblas_operation trans,
-                    const rocblas_int m,
-                    const rocblas_int nrhs,
-                    Td& dA,
-                    const rocblas_int lda,
-                    const rocblas_stride stA,
-                    Ud& dIpiv,
-                    const rocblas_stride stP,
-                    Td& dC,
-                    const rocblas_int ldc,
-                    const rocblas_stride stC,
-                    const rocblas_int bc,
-                    Th& hA,
-                    Uh& hIpiv,
-                    Th& hB)
+                   const rocblas_operation trans,
+                   const rocblas_int m,
+                   const rocblas_int nrhs,
+                   Td& dA,
+                   const rocblas_int lda,
+                   const rocblas_stride stA,
+                   Ud& dIpiv,
+                   const rocblas_stride stP,
+                   Td& dC,
+                   const rocblas_int ldc,
+                   const rocblas_stride stC,
+                   const rocblas_int bc,
+                   Th& hA,
+                   Uh& hIpiv,
+                   Th& hB)
 {
-/*
+    /*
     if(CPU)
     {
         rocblas_init<T>(hA, true);
@@ -170,25 +172,25 @@ void gels_initData(const rocblas_handle handle,
 
 template <bool STRIDED, typename T, typename Td, typename Ud, typename Th, typename Uh>
 void gels_getError(const rocblas_handle handle,
-                    const rocblas_operation trans,
-                    const rocblas_int m,
-                    const rocblas_int nrhs,
-                    Td& dA,
-                    const rocblas_int lda,
-                    const rocblas_stride stA,
-                    Ud& dIpiv,
-                    const rocblas_stride stP,
-                    Td& dC,
-                    const rocblas_int ldc,
-                    const rocblas_stride stC,
-                    const rocblas_int bc,
-                    Th& hA,
-                    Uh& hIpiv,
-                    Th& hB,
-                    Th& hBRes,
-                    double* max_err)
+                   const rocblas_operation trans,
+                   const rocblas_int m,
+                   const rocblas_int nrhs,
+                   Td& dA,
+                   const rocblas_int lda,
+                   const rocblas_stride stA,
+                   Ud& dIpiv,
+                   const rocblas_stride stP,
+                   Td& dC,
+                   const rocblas_int ldc,
+                   const rocblas_stride stC,
+                   const rocblas_int bc,
+                   Th& hA,
+                   Uh& hIpiv,
+                   Th& hB,
+                   Th& hBRes,
+                   double* max_err)
 {
-/*
+    /*
     // input data initialization
     gels_initData<true, true, T>(handle, trans, m, nrhs, dA, lda, stA, dIpiv, stP, dC, ldc, stC,
                                   bc, hA, hIpiv, hB);
@@ -221,27 +223,27 @@ void gels_getError(const rocblas_handle handle,
 
 template <bool STRIDED, typename T, typename Td, typename Ud, typename Th, typename Uh>
 void gels_getPerfData(const rocblas_handle handle,
-                       const rocblas_operation trans,
-                       const rocblas_int m,
-                       const rocblas_int nrhs,
-                       Td& dA,
-                       const rocblas_int lda,
-                       const rocblas_stride stA,
-                       Ud& dIpiv,
-                       const rocblas_stride stP,
-                       Td& dC,
-                       const rocblas_int ldc,
-                       const rocblas_stride stC,
-                       const rocblas_int bc,
-                       Th& hA,
-                       Uh& hIpiv,
-                       Th& hB,
-                       double* gpu_time_used,
-                       double* cpu_time_used,
-                       const rocblas_int hot_calls,
-                       const bool perf)
+                      const rocblas_operation trans,
+                      const rocblas_int m,
+                      const rocblas_int nrhs,
+                      Td& dA,
+                      const rocblas_int lda,
+                      const rocblas_stride stA,
+                      Ud& dIpiv,
+                      const rocblas_stride stP,
+                      Td& dC,
+                      const rocblas_int ldc,
+                      const rocblas_stride stC,
+                      const rocblas_int bc,
+                      Th& hA,
+                      Uh& hIpiv,
+                      Th& hB,
+                      double* gpu_time_used,
+                      double* cpu_time_used,
+                      const rocblas_int hot_calls,
+                      const bool perf)
 {
-/*
+    /*
     if(!perf)
     {
         gels_initData<true, false, T>(handle, trans, m, nrhs, dA, lda, stA, dIpiv, stP, dC, ldc,
@@ -288,7 +290,7 @@ void gels_getPerfData(const rocblas_handle handle,
 template <bool BATCHED, bool STRIDED, typename T>
 void testing_gels(Arguments argus)
 {
-/*
+    /*
     rocblas_local_handle handle;
     // Set handle memory size to a large enough value for all tests to pass.
    //(TODO: Investigate why rocblas is not automatically increasing the size of

@@ -7219,29 +7219,49 @@ ROCSOLVER_EXPORT rocblas_status rocsolver_zgetri_strided_batched(rocblas_handle 
 
     ********************************************************************/
 
-ROCSOLVER_EXPORT rocblas_status rocsolver_sgels(
-    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
-    const rocblas_int n, const rocblas_int nrhs, float * A,
-    const rocblas_int lda, float * C, const rocblas_int ldc,
-    rocblas_int *info);
+ROCSOLVER_EXPORT rocblas_status rocsolver_sgels(rocblas_handle handle,
+                                                rocblas_operation trans,
+                                                const rocblas_int m,
+                                                const rocblas_int n,
+                                                const rocblas_int nrhs,
+                                                float* A,
+                                                const rocblas_int lda,
+                                                float* C,
+                                                const rocblas_int ldc,
+                                                rocblas_int* info);
 
-ROCSOLVER_EXPORT rocblas_status rocsolver_dgels(
-    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
-    const rocblas_int n, const rocblas_int nrhs, double *A,
-    const rocblas_int lda, double *C, const rocblas_int ldc,
-    rocblas_int *info);
+ROCSOLVER_EXPORT rocblas_status rocsolver_dgels(rocblas_handle handle,
+                                                rocblas_operation trans,
+                                                const rocblas_int m,
+                                                const rocblas_int n,
+                                                const rocblas_int nrhs,
+                                                double* A,
+                                                const rocblas_int lda,
+                                                double* C,
+                                                const rocblas_int ldc,
+                                                rocblas_int* info);
 
-ROCSOLVER_EXPORT rocblas_status rocsolver_cgels(
-    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
-    const rocblas_int n, const rocblas_int nrhs,
-    rocblas_float_complex *A, const rocblas_int lda,
-    rocblas_float_complex *C, const rocblas_int ldc, rocblas_int *info);
+ROCSOLVER_EXPORT rocblas_status rocsolver_cgels(rocblas_handle handle,
+                                                rocblas_operation trans,
+                                                const rocblas_int m,
+                                                const rocblas_int n,
+                                                const rocblas_int nrhs,
+                                                rocblas_float_complex* A,
+                                                const rocblas_int lda,
+                                                rocblas_float_complex* C,
+                                                const rocblas_int ldc,
+                                                rocblas_int* info);
 
-ROCSOLVER_EXPORT rocblas_status rocsolver_zgels(
-    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
-    const rocblas_int n, const rocblas_int nrhs,
-    rocblas_double_complex * A, const rocblas_int lda,
-    rocblas_double_complex * C, const rocblas_int ldc, rocblas_int *info);
+ROCSOLVER_EXPORT rocblas_status rocsolver_zgels(rocblas_handle handle,
+                                                rocblas_operation trans,
+                                                const rocblas_int m,
+                                                const rocblas_int n,
+                                                const rocblas_int nrhs,
+                                                rocblas_double_complex* A,
+                                                const rocblas_int lda,
+                                                rocblas_double_complex* C,
+                                                const rocblas_int ldc,
+                                                rocblas_int* info);
 ///@}
 
 ///@{
@@ -7297,31 +7317,53 @@ ROCSOLVER_EXPORT rocblas_status rocsolver_zgels(
 
     ********************************************************************/
 
-ROCSOLVER_EXPORT rocblas_status rocsolver_sgels_batched(
-    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
-    const rocblas_int n, const rocblas_int nrhs, float *const A[],
-    const rocblas_int lda, float *const C[], const rocblas_int ldc,
-    rocblas_int *info, const rocblas_int batch_count);
+ROCSOLVER_EXPORT rocblas_status rocsolver_sgels_batched(rocblas_handle handle,
+                                                        rocblas_operation trans,
+                                                        const rocblas_int m,
+                                                        const rocblas_int n,
+                                                        const rocblas_int nrhs,
+                                                        float* const A[],
+                                                        const rocblas_int lda,
+                                                        float* const C[],
+                                                        const rocblas_int ldc,
+                                                        rocblas_int* info,
+                                                        const rocblas_int batch_count);
 
-ROCSOLVER_EXPORT rocblas_status rocsolver_dgels_batched(
-    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
-    const rocblas_int n, const rocblas_int nrhs, double *const A[],
-    const rocblas_int lda, double *const C[], const rocblas_int ldc,
-    rocblas_int *info, const rocblas_int batch_count);
+ROCSOLVER_EXPORT rocblas_status rocsolver_dgels_batched(rocblas_handle handle,
+                                                        rocblas_operation trans,
+                                                        const rocblas_int m,
+                                                        const rocblas_int n,
+                                                        const rocblas_int nrhs,
+                                                        double* const A[],
+                                                        const rocblas_int lda,
+                                                        double* const C[],
+                                                        const rocblas_int ldc,
+                                                        rocblas_int* info,
+                                                        const rocblas_int batch_count);
 
-ROCSOLVER_EXPORT rocblas_status rocsolver_cgels_batched(
-    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
-    const rocblas_int n, const rocblas_int nrhs,
-    rocblas_float_complex *const A[], const rocblas_int lda,
-    rocblas_float_complex *const C[], const rocblas_int ldc, rocblas_int *info,
-    const rocblas_int batch_count);
+ROCSOLVER_EXPORT rocblas_status rocsolver_cgels_batched(rocblas_handle handle,
+                                                        rocblas_operation trans,
+                                                        const rocblas_int m,
+                                                        const rocblas_int n,
+                                                        const rocblas_int nrhs,
+                                                        rocblas_float_complex* const A[],
+                                                        const rocblas_int lda,
+                                                        rocblas_float_complex* const C[],
+                                                        const rocblas_int ldc,
+                                                        rocblas_int* info,
+                                                        const rocblas_int batch_count);
 
-ROCSOLVER_EXPORT rocblas_status rocsolver_zgels_batched(
-    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
-    const rocblas_int n, const rocblas_int nrhs,
-    rocblas_double_complex *const A[], const rocblas_int lda,
-    rocblas_double_complex *const C[], const rocblas_int ldc, rocblas_int *info,
-    const rocblas_int batch_count);
+ROCSOLVER_EXPORT rocblas_status rocsolver_zgels_batched(rocblas_handle handle,
+                                                        rocblas_operation trans,
+                                                        const rocblas_int m,
+                                                        const rocblas_int n,
+                                                        const rocblas_int nrhs,
+                                                        rocblas_double_complex* const A[],
+                                                        const rocblas_int lda,
+                                                        rocblas_double_complex* const C[],
+                                                        const rocblas_int ldc,
+                                                        rocblas_int* info,
+                                                        const rocblas_int batch_count);
 ///@}
 
 ///@{
@@ -7383,31 +7425,61 @@ ROCSOLVER_EXPORT rocblas_status rocsolver_zgels_batched(
 
     ********************************************************************/
 
-ROCSOLVER_EXPORT rocblas_status rocsolver_sgels_strided_batched(
-    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
-    const rocblas_int n, const rocblas_int nrhs, float * A,
-    const rocblas_int lda, const rocblas_stride strideA, float * C, const rocblas_int ldc, const rocblas_stride strideC,
-    rocblas_int *info, const rocblas_int batch_count);
+ROCSOLVER_EXPORT rocblas_status rocsolver_sgels_strided_batched(rocblas_handle handle,
+                                                                rocblas_operation trans,
+                                                                const rocblas_int m,
+                                                                const rocblas_int n,
+                                                                const rocblas_int nrhs,
+                                                                float* A,
+                                                                const rocblas_int lda,
+                                                                const rocblas_stride strideA,
+                                                                float* C,
+                                                                const rocblas_int ldc,
+                                                                const rocblas_stride strideC,
+                                                                rocblas_int* info,
+                                                                const rocblas_int batch_count);
 
-ROCSOLVER_EXPORT rocblas_status rocsolver_dgels_strided_batched(
-    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
-    const rocblas_int n, const rocblas_int nrhs, double * A,
-    const rocblas_int lda, const rocblas_stride strideA, double * C, const rocblas_int ldc, const rocblas_stride strideC,
-    rocblas_int *info, const rocblas_int batch_count);
+ROCSOLVER_EXPORT rocblas_status rocsolver_dgels_strided_batched(rocblas_handle handle,
+                                                                rocblas_operation trans,
+                                                                const rocblas_int m,
+                                                                const rocblas_int n,
+                                                                const rocblas_int nrhs,
+                                                                double* A,
+                                                                const rocblas_int lda,
+                                                                const rocblas_stride strideA,
+                                                                double* C,
+                                                                const rocblas_int ldc,
+                                                                const rocblas_stride strideC,
+                                                                rocblas_int* info,
+                                                                const rocblas_int batch_count);
 
-ROCSOLVER_EXPORT rocblas_status rocsolver_cgels_strided_batched(
-    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
-    const rocblas_int n, const rocblas_int nrhs,
-    rocblas_float_complex* A, const rocblas_int lda, const rocblas_stride strideA,
-    rocblas_float_complex* C, const rocblas_int ldc, const rocblas_stride strideC, rocblas_int *info,
-    const rocblas_int batch_count);
+ROCSOLVER_EXPORT rocblas_status rocsolver_cgels_strided_batched(rocblas_handle handle,
+                                                                rocblas_operation trans,
+                                                                const rocblas_int m,
+                                                                const rocblas_int n,
+                                                                const rocblas_int nrhs,
+                                                                rocblas_float_complex* A,
+                                                                const rocblas_int lda,
+                                                                const rocblas_stride strideA,
+                                                                rocblas_float_complex* C,
+                                                                const rocblas_int ldc,
+                                                                const rocblas_stride strideC,
+                                                                rocblas_int* info,
+                                                                const rocblas_int batch_count);
 
-ROCSOLVER_EXPORT rocblas_status rocsolver_zgels_strided_batched(
-    rocblas_handle handle, rocblas_operation trans, const rocblas_int m,
-    const rocblas_int n, const rocblas_int nrhs,
-    rocblas_double_complex* A, const rocblas_int lda, const rocblas_stride strideA,
-    rocblas_double_complex* C, const rocblas_int ldc, const rocblas_stride strideC, rocblas_int *info,
-    const rocblas_int batch_count);
+ROCSOLVER_EXPORT rocblas_status rocsolver_zgels_strided_batched(rocblas_handle handle,
+                                                                rocblas_operation trans,
+                                                                const rocblas_int m,
+                                                                const rocblas_int n,
+                                                                const rocblas_int nrhs,
+                                                                rocblas_double_complex* A,
+                                                                const rocblas_int lda,
+                                                                const rocblas_stride strideA,
+                                                                rocblas_double_complex* C,
+                                                                const rocblas_int ldc,
+                                                                const rocblas_stride strideC,
+                                                                rocblas_int* info,
+                                                                const rocblas_int batch_count);
 ///@}
 
 /*! @{
