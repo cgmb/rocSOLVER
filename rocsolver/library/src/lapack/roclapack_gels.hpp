@@ -110,10 +110,10 @@ rocblas_status rocsolver_gels_template(rocblas_handle handle,
                                        rocblas_int* info,
                                        const rocblas_int batch_count,
                                        T* scalars,
-                                       void* void_work,
-                                       void* void_workArr,
-                                       void* void_diag_trfact,
-                                       void* void_trfact_workTrmm,
+                                       void* work_x_temp,
+                                       void* workArr_temp_arr,
+                                       void* diag_trfac_invA,
+                                       void* trfact_workTrmm_invA_arr,
                                        bool optim_mem)
 {
     // quick return
@@ -130,42 +130,25 @@ rocblas_status rocsolver_gels_template(rocblas_handle handle,
     rocblas_get_pointer_mode(handle, &old_mode);
     rocblas_set_pointer_mode(handle, rocblas_pointer_mode_host);
 
-    {
-        // note: m > n
-        // compute QR factorization of A
-        T* work = (T*)void_work;
-        T* workArr = (T*)void_workArr;
-        T* diag = (T*)void_diag_trfact;
-        T** trfact = (T**)void_trfact_workTrmm;
-        rocsolver_geqrf_template<BATCHED, STRIDED>(handle, m, n, A, shiftA, lda, strideA, ipiv,
-                                                   strideP, batch_count, scalars, work, workArr,
-                                                   diag, trfact);
-    }
-    {
-        T* work = (T*)void_work;
-        T* workArr = (T*)void_workArr;
-        T* trfact = (T*)void_diag_trfact;
-        T** workTrmm = (T**)void_trfact_workTrmm;
-        rocsolver_ormqr_unmqr_template<BATCHED, STRIDED>(
-            handle, rocblas_side_left, rocblas_operation_transpose, m, nrhs, n, A, shiftA, lda,
-            strideA, ipiv, strideP, C, shiftC, ldc, strideC, batch_count, scalars, work, workArr,
-            trfact, workTrmm);
-    }
-    {
-        // do the equivalent of strtrs
+    // note: m > n
+    // compute QR factorization of A
+    rocsolver_geqrf_template<BATCHED, STRIDED>(
+        handle, m, n, A, shiftA, lda, strideA, ipiv, strideP, batch_count, scalars, (T*)work_x_temp,
+        (T*)workArr_temp_arr, (T*)diag_trfac_invA, (T**)trfact_workTrmm_invA_arr);
+    rocsolver_ormqr_unmqr_template<BATCHED, STRIDED>(
+        handle, rocblas_side_left, rocblas_operation_transpose, m, nrhs, n, A, shiftA, lda, strideA,
+        ipiv, strideP, C, shiftC, ldc, strideC, batch_count, scalars, (T*)work_x_temp,
+        (T*)workArr_temp_arr, (T*)diag_trfac_invA, (T**)trfact_workTrmm_invA_arr);
+    // do the equivalent of strtrs
 
-        // TODO: singularity check
-        void* x_temp = void_work;
-        void* x_temp_arr = void_workArr;
-        void* invA = void_diag_trfact;
-        void* invA_arr = void_trfact_workTrmm;
-        const T one = 1; // constant 1 in host
-        // solve U*X = B, overwriting B with X
-        rocblasCall_trsm<BATCHED, T>(
-            handle, rocblas_side_left, rocblas_fill_upper, rocblas_operation_none,
-            rocblas_diagonal_non_unit, n, nrhs, &one, A, shiftA, lda, strideA, C, shiftC, ldc,
-            strideC, batch_count, optim_mem, x_temp, x_temp_arr, invA, invA_arr /*, workArr ? */);
-    }
+    // TODO: singularity check
+    const T one = 1; // constant 1 in host
+    // solve U*X = B, overwriting B with X
+    rocblasCall_trsm<BATCHED, T>(handle, rocblas_side_left, rocblas_fill_upper,
+                                 rocblas_operation_none, rocblas_diagonal_non_unit, n, nrhs, &one,
+                                 A, shiftA, lda, strideA, C, shiftC, ldc, strideC, batch_count,
+                                 optim_mem, work_x_temp, workArr_temp_arr, diag_trfac_invA,
+                                 trfact_workTrmm_invA_arr /*, workArr ? */);
 
     rocblas_set_pointer_mode(handle, old_mode);
     return rocblas_status_success;

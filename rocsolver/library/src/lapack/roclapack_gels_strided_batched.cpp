@@ -17,8 +17,6 @@ rocblas_status rocsolver_gels_strided_batched_impl(rocblas_handle handle,
                                                    const rocblas_int batch_count,
                                                    const int pivot)
 {
-    using S = decltype(std::real(T{}));
-
     if(!handle)
         return rocblas_status_invalid_handle;
 
