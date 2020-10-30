@@ -79,15 +79,15 @@ rocblas_status rocsolver_gels_argCheck(rocblas_operation trans,
     if(trans != rocblas_operation_none)
         return rocblas_status_invalid_value;
 
-    /*
-  // 2. invalid size
-  if (n < 0 || nrhs < 0 || lda < m || ldc < n || batch_count < 0)
-    return rocblas_status_invalid_size;
+    // 2. invalid size
+    if(m < 0 || n < 0 || nrhs < 0 || m < n || lda < 1 || lda < m || ldc < 1 || ldc < m
+       || ldc < n /*|| batch_count < 0*/)
+        return rocblas_status_invalid_size;
 
-  // 3. invalid pointers
-  if ((n && !A) || (n && !C))
-    return rocblas_status_invalid_pointer;
-*/
+    // 3. invalid pointers
+    if((n && !A) || (nrhs && !C))
+        return rocblas_status_invalid_pointer;
+
     return rocblas_status_continue;
 }
 

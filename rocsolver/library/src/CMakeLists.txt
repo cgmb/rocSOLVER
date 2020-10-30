@@ -75,6 +75,7 @@ set( rocsolver_lapack_source
   lapack/roclapack_getri_outofplace_batched.cpp
   lapack/roclapack_gels.cpp
   lapack/roclapack_gels_batched.cpp
+  lapack/roclapack_gels_strided_batched.cpp
   lapack/roclapack_potf2.cpp
   lapack/roclapack_potf2_batched.cpp
   lapack/roclapack_potf2_strided_batched.cpp

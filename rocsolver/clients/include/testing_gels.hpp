@@ -9,21 +9,21 @@
 #include "rocsolver_arguments.hpp"
 #include "rocsolver_test.hpp"
 
-template <bool STRIDED, typename T>
+template <bool STRIDED, typename U>
 void gels_checkBadArgs(const rocblas_handle handle,
                        const rocblas_operation trans,
                        const rocblas_int m,
                        const rocblas_int n,
                        const rocblas_int nrhs,
-                       T dA,
+                       U dA,
                        const rocblas_int lda,
                        const rocblas_stride stA,
-                       T dC,
+                       U dC,
                        const rocblas_int ldc,
                        const rocblas_stride stC,
                        rocblas_int* info,
                        const rocblas_int bc)
-{ //add n, remove dIpiv, stp, b->c, dInfo
+{
     // handle
     EXPECT_ROCBLAS_STATUS(
         rocsolver_gels(STRIDED, nullptr, trans, m, n, nrhs, dA, lda, stA, dC, ldc, stC, info, bc),
@@ -32,40 +32,77 @@ void gels_checkBadArgs(const rocblas_handle handle,
     // values
     EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, rocblas_operation(-1), m, n, nrhs, dA,
                                          lda, stA, dC, ldc, stC, info, bc),
-                          rocblas_status_invalid_value);
+                          rocblas_status_invalid_value)
+        << "Must report error when operation is invalid";
 
-    // sizes (only check batch_count if applicable)
+    // sizes
+    EXPECT_ROCBLAS_STATUS(
+        rocsolver_gels(STRIDED, handle, trans, -1, n, nrhs, dA, lda, stA, dC, ldc, stC, info, bc),
+        rocblas_status_invalid_size)
+        << "Must report error when m is negative";
+    EXPECT_ROCBLAS_STATUS(
+        rocsolver_gels(STRIDED, handle, trans, m, -1, nrhs, dA, lda, stA, dC, ldc, stC, info, bc),
+        rocblas_status_invalid_size)
+        << "Must report error when n must is negative";
+    EXPECT_ROCBLAS_STATUS(
+        rocsolver_gels(STRIDED, handle, trans, m, n, -1, dA, lda, stA, dC, ldc, stC, info, bc),
+        rocblas_status_invalid_size)
+        << "Must report error when nrhs must is negative";
+    EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, n - 1, n, nrhs, dA, lda, stA, dC,
+                                         ldc, stC, info, bc),
+                          rocblas_status_invalid_size)
+        << "Must report error when m < n (underdetermined systems not supported)";
+    EXPECT_ROCBLAS_STATUS(
+        rocsolver_gels(STRIDED, handle, trans, m, n, nrhs, dA, 0, stA, dC, ldc, stC, info, bc),
+        rocblas_status_invalid_size)
+        << "Must report error when lda < 1";
+    EXPECT_ROCBLAS_STATUS(
+        rocsolver_gels(STRIDED, handle, trans, m, n, nrhs, dA, m - 1, stA, dC, ldc, stC, info, bc),
+        rocblas_status_invalid_size)
+        << "Must report error when lda < m"; // needs better args
+    EXPECT_ROCBLAS_STATUS(
+        rocsolver_gels(STRIDED, handle, trans, m, n, nrhs, dA, lda, stA, dC, 0, stC, info, bc),
+        rocblas_status_invalid_size)
+        << "Must report error when ldc < 1";
+    EXPECT_ROCBLAS_STATUS(
+        rocsolver_gels(STRIDED, handle, trans, m, n, nrhs, dA, lda, stA, dC, m - 1, stC, info, bc),
+        rocblas_status_invalid_size)
+        << "Must report error when ldc < m"; // needs better args
+    EXPECT_ROCBLAS_STATUS(
+        rocsolver_gels(STRIDED, handle, trans, m, n, nrhs, dA, lda, stA, dC, n - 1, stC, info, bc),
+        rocblas_status_invalid_size)
+        << "Must report error when ldc < n"; // needs better args
     if(STRIDED)
         EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, m, n, nrhs, dA, lda, stA, dC,
                                              ldc, stC, info, -1),
-                              rocblas_status_invalid_size);
+                              rocblas_status_invalid_size)
+            << "Must report error when batch size is negative";
 
-    /*
     // pointers
-    EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, m, nrhs, (T) nullptr, lda, stA,
-                                          dIpiv, stP, dC, ldc, stC, bc),
-                          rocblas_status_invalid_pointer);
-    EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, m, nrhs, dA, lda, stA,
-                                          (U) nullptr, stP, dC, ldc, stC, bc),
-                          rocblas_status_invalid_pointer);
-    EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, m, nrhs, dA, lda, stA, dIpiv, stP,
-                                          (T) nullptr, ldc, stC, bc),
-                          rocblas_status_invalid_pointer);
+    EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, m, n, nrhs, (U) nullptr, lda, stA,
+                                         dC, ldc, stC, info, bc),
+                          rocblas_status_invalid_pointer)
+        << "Should normally report error when A is null";
+    EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, m, n, nrhs, dA, lda, stA,
+                                         (U) nullptr, ldc, stC, info, bc),
+                          rocblas_status_invalid_pointer)
+        << "Should normally report error when C is null";
 
     // quick return with invalid pointers
-    EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, 0, nrhs, (T) nullptr, lda, stA,
-                                          (U) nullptr, stP, (T) nullptr, ldc, stC, bc),
-                          rocblas_status_success);
-    EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, m, 0, dA, lda, stA, dIpiv, stP,
-                                          (T) nullptr, ldc, stC, bc),
-                          rocblas_status_success);
+    EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, m, 0, nrhs, (U) nullptr, lda, stA,
+                                         dC, ldc, stC, info, bc),
+                          rocblas_status_success)
+        << "Matrix A may be null when n is 0 (empty matrix)";
+    EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, m, n, 0, dA, lda, stA, (U) nullptr,
+                                         ldc, stC, info, bc),
+                          rocblas_status_success)
+        << "Matrix C may be null when nhrs is 0 (empty matrix)";
 
     // quick return with zero batch_count if applicable
     if(STRIDED)
-        EXPECT_ROCBLAS_STATUS(rocsolver_gels(STRIDED, handle, trans, m, nrhs, dA, lda, stA, dIpiv,
-                                              stP, dC, ldc, stC, 0),
-                              rocblas_status_success);
-*/
+        EXPECT_ROCBLAS_STATUS(
+            rocsolver_gels(STRIDED, handle, trans, m, n, nrhs, dA, lda, stA, dC, ldc, stC, info, 0),
+            rocblas_status_success);
 }
 
 template <bool BATCHED, bool STRIDED, typename T>

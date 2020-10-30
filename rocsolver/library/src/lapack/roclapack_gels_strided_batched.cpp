@@ -4,18 +4,20 @@
 
 #include "roclapack_gels.hpp"
 
-template <typename T, typename U>
+template <typename T>
 rocblas_status rocsolver_gels_strided_batched_impl(rocblas_handle handle,
+                                                   rocblas_operation trans,
                                                    const rocblas_int m,
                                                    const rocblas_int n,
-                                                   U A,
+                                                   const rocblas_int nrhs,
+                                                   T* A,
                                                    const rocblas_int lda,
                                                    const rocblas_stride strideA,
-                                                   rocblas_int* ipiv,
-                                                   const rocblas_stride strideP,
+                                                   T* C,
+                                                   const rocblas_int ldc,
+                                                   const rocblas_stride strideC,
                                                    rocblas_int* info,
-                                                   const rocblas_int batch_count,
-                                                   const int pivot)
+                                                   const rocblas_int batch_count)
 {
     if(!handle)
         return rocblas_status_invalid_handle;
@@ -23,13 +25,14 @@ rocblas_status rocsolver_gels_strided_batched_impl(rocblas_handle handle,
     // logging is missing ???
 
     // argument checking
-    rocblas_status st = rocsolver_getf2_gels_argCheck(m, n, lda, A, ipiv, info, pivot, batch_count);
+    rocblas_status st = rocsolver_gels_argCheck(trans, m, n, nrhs, A, lda, C, ldc, batch_count);
     if(st != rocblas_status_continue)
         return st;
 
     // working with unshifted arrays
     const rocblas_int shiftA = 0;
     const rocblas_int shiftC = 0;
+    const rocblas_stride strideP = 0;
     const bool optim_mem = true;
 
     size_t size_scalars, size_work_x_temp, size_workArr_temp_arr, size_diag_trfac_invA,
@@ -42,12 +45,6 @@ rocblas_status rocsolver_gels_strided_batched_impl(rocblas_handle handle,
         return rocblas_set_optimal_device_memory_size(handle, size_scalars, size_work_x_temp,
                                                       size_workArr_temp_arr, size_diag_trfac_invA,
                                                       size_trfact_workTrmm_invA_arr, size_ipiv);
-    // memory workspace allocation
-    rocblas_device_malloc mem(handle, size_scalars, size_work_x_temp, size_workArr_temp_arr,
-                              size_diag_trfac_invA, size_trfact_workTrmm_invA_arr, size_ipiv);
-    if(!mem)
-        return rocblas_status_memory_error;
-
     // memory workspace allocation
     void *scalars, *work_x_temp, *workArr_temp_arr, *diag_trfac_invA, *trfact_workTrmm_invA_arr,
         *ipiv;
