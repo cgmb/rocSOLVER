@@ -127,8 +127,7 @@ rocsolver_getf2_npvt_strided_batched x      x          x             x
 **rocsolver_getrf_npvt**             x      x          x             x
 rocsolver_getrf_npvt_batched         x      x          x             x
 rocsolver_getrf_npvt_strided_batched x      x          x             x
-**rocsolver_gels**                                                 
-rocsolver_gels                       x      x          x             x
+**rocsolver_gels**                   x      x          x             x
 rocsolver_gels_batched               x      x          x             x
 rocsolver_gels_strided_batched       x      x          x             x
 ==================================== ====== ====== ============== ==============

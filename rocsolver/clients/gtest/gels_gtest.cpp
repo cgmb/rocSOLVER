@@ -121,7 +121,7 @@ TEST_P(GELS, __double)
     arg.batch_count = 1;
     testing_gels<false, false, double>(arg);
 }
-/*
+
 TEST_P(GELS, __float_complex)
 {
     Arguments arg = gels_setup_arguments(GetParam());
@@ -156,7 +156,7 @@ TEST_P(GELS, batched__float)
     arg.batch_count = 3;
     testing_gels<true, true, float>(arg);
 }
-
+/*
 TEST_P(GELS, batched__double)
 {
     Arguments arg = gels_setup_arguments(GetParam());

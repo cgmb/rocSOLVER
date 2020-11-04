@@ -2606,165 +2606,95 @@ inline rocblas_status rocsolver_gelq2_gelqf(bool STRIDED,
 
 /******************** GELS ********************/
 // normal and strided_batched
-inline rocblas_status rocsolver_gels(bool STRIDED,
-                                     rocblas_handle handle,
-                                     rocblas_operation trans,
-                                     rocblas_int m,
-                                     rocblas_int n,
-                                     rocblas_int nrhs,
-                                     float* A,
-                                     rocblas_int lda,
-                                     rocblas_stride stA,
-                                     float* C,
-                                     rocblas_int ldc,
-                                     rocblas_stride stC,
-                                     rocblas_int* info,
-                                     rocblas_int bc)
-{
-    assert(!STRIDED);
-    return rocsolver_sgels(handle, trans, m, n, nrhs, A, lda, C, ldc, info);
+inline rocblas_status rocsolver_gels(bool STRIDED, rocblas_handle handle, rocblas_operation trans,
+               rocblas_int m, rocblas_int n, rocblas_int nrhs, float * A,
+               rocblas_int lda, rocblas_stride stA, float *C, rocblas_int ldc, rocblas_stride stC,
+               rocblas_int *info, rocblas_int bc) {
+    if(STRIDED)
+        return rocsolver_sgels_strided_batched(handle, trans, m, n, nrhs, A, lda, stA, C, ldc, stC, info, bc);
+    else
+        return rocsolver_sgels(handle, trans, m, n, nrhs, A, lda, C, ldc, info);
 }
 
-inline rocblas_status rocsolver_gels(bool STRIDED,
-                                     rocblas_handle handle,
-                                     rocblas_operation trans,
-                                     rocblas_int m,
-                                     rocblas_int n,
-                                     rocblas_int nrhs,
-                                     double* A,
-                                     rocblas_int lda,
-                                     rocblas_stride stA,
-                                     double* C,
-                                     rocblas_int ldc,
-                                     rocblas_stride stC,
-                                     rocblas_int* info,
-                                     rocblas_int bc)
-{
-    assert(!STRIDED);
-    return rocsolver_dgels(handle, trans, m, n, nrhs, A, lda, C, ldc, info);
+inline rocblas_status rocsolver_gels(bool STRIDED, rocblas_handle handle, rocblas_operation trans,
+               rocblas_int m, rocblas_int n, rocblas_int nrhs, double * A,
+               rocblas_int lda, rocblas_stride stA, double *C, rocblas_int ldc, rocblas_stride stC,
+               rocblas_int *info, rocblas_int bc) {
+    if(STRIDED)
+        return rocsolver_dgels_strided_batched(handle, trans, m, n, nrhs, A, lda, stA, C, ldc, stC, info, bc);
+    else
+        return rocsolver_dgels(handle, trans, m, n, nrhs, A, lda, C, ldc, info);
 }
 
-inline rocblas_status rocsolver_gels(bool STRIDED,
-                                     rocblas_handle handle,
-                                     rocblas_operation trans,
-                                     rocblas_int m,
-                                     rocblas_int n,
-                                     rocblas_int nrhs,
-                                     rocblas_float_complex* A,
-                                     rocblas_int lda,
-                                     rocblas_stride stA,
-                                     rocblas_float_complex* C,
-                                     rocblas_int ldc,
-                                     rocblas_stride stC,
-                                     rocblas_int* info,
-                                     rocblas_int bc)
-{
-    assert(!STRIDED);
-    return rocsolver_cgels(handle, trans, m, n, nrhs, A, lda, C, ldc, info);
+inline rocblas_status rocsolver_gels(bool STRIDED, rocblas_handle handle, rocblas_operation trans,
+               rocblas_int m, rocblas_int n, rocblas_int nrhs, rocblas_float_complex * A,
+               rocblas_int lda, rocblas_stride stA, rocblas_float_complex *C, rocblas_int ldc, rocblas_stride stC,
+               rocblas_int *info, rocblas_int bc) {
+    if(STRIDED)
+        return rocsolver_cgels_strided_batched(handle, trans, m, n, nrhs, A, lda, stA, C, ldc, stC, info, bc);
+    else
+        return rocsolver_cgels(handle, trans, m, n, nrhs, A, lda, C, ldc, info);
 }
 
-inline rocblas_status rocsolver_gels(bool STRIDED,
-                                     rocblas_handle handle,
-                                     rocblas_operation trans,
-                                     rocblas_int m,
-                                     rocblas_int n,
-                                     rocblas_int nrhs,
-                                     rocblas_double_complex* A,
-                                     rocblas_int lda,
-                                     rocblas_stride stA,
-                                     rocblas_double_complex* C,
-                                     rocblas_int ldc,
-                                     rocblas_stride stC,
-                                     rocblas_int* info,
-                                     rocblas_int bc)
-{
-    assert(!STRIDED);
-    return rocsolver_zgels(handle, trans, m, n, nrhs, A, lda, C, ldc, info);
+inline rocblas_status rocsolver_gels(bool STRIDED, rocblas_handle handle, rocblas_operation trans,
+               rocblas_int m, rocblas_int n, rocblas_int nrhs, rocblas_double_complex * A,
+               rocblas_int lda, rocblas_stride stA, rocblas_double_complex *C, rocblas_int ldc, rocblas_stride stC,
+               rocblas_int *info, rocblas_int bc) {
+    if(STRIDED)
+        return rocsolver_zgels_strided_batched(handle, trans, m, n, nrhs, A, lda, stA, C, ldc, stC, info, bc);
+    else
+        return rocsolver_zgels(handle, trans, m, n, nrhs, A, lda, C, ldc, info);
 }
 
 // batched
-inline rocblas_status rocsolver_gels(bool STRIDED,
-                                     rocblas_handle handle,
-                                     rocblas_operation trans,
-                                     rocblas_int m,
-                                     rocblas_int n,
-                                     rocblas_int nrhs,
-                                     float* const A[],
-                                     rocblas_int lda,
-                                     rocblas_stride stA,
-                                     float* const C[],
-                                     rocblas_int ldc,
-                                     rocblas_stride stC,
-                                     rocblas_int* info,
-                                     rocblas_int bc)
-{
-    assert(!STRIDED);
-    (void)stA;
-    (void)stC;
-    return rocsolver_sgels_batched(handle, trans, m, n, nrhs, A, lda, C, ldc, info, bc);
+inline rocblas_status
+rocsolver_gels(bool STRIDED, rocblas_handle handle, rocblas_operation trans,
+               rocblas_int m, rocblas_int n, rocblas_int nrhs, float *const A[],
+               rocblas_int lda, rocblas_stride stA, float *const C[], rocblas_int ldc, rocblas_stride stC,
+               rocblas_int *info, rocblas_int bc) {
+//  assert(!STRIDED);
+  (void)stA;
+  (void)stC;
+  return rocsolver_sgels_batched(handle, trans, m, n, nrhs, A,
+                                 lda, C, ldc, info, bc);
 }
 
-inline rocblas_status rocsolver_gels(bool STRIDED,
-                                     rocblas_handle handle,
-                                     rocblas_operation trans,
-                                     rocblas_int m,
-                                     rocblas_int n,
-                                     rocblas_int nrhs,
-                                     double* const A[],
-                                     rocblas_int lda,
-                                     rocblas_stride stA,
-                                     double* const C[],
-                                     rocblas_int ldc,
-                                     rocblas_stride stC,
-                                     rocblas_int* info,
-                                     rocblas_int bc)
-{
-    assert(!STRIDED);
-    (void)stA;
-    (void)stC;
-    return rocsolver_dgels_batched(handle, trans, m, n, nrhs, A, lda, C, ldc, info, bc);
+inline rocblas_status
+rocsolver_gels(bool STRIDED, rocblas_handle handle, rocblas_operation trans,
+               rocblas_int m, rocblas_int n, rocblas_int nrhs,
+               double *const A[], rocblas_int lda, rocblas_stride stA, double *const C[],
+               rocblas_int ldc,  rocblas_stride stC, rocblas_int *info, rocblas_int bc) {
+//  assert(!STRIDED);
+  (void)stA;
+  (void)stC;
+  return rocsolver_dgels_batched(handle, trans, m, n, nrhs, A,
+                                 lda, C, ldc, info, bc);
 }
 
-inline rocblas_status rocsolver_gels(bool STRIDED,
-                                     rocblas_handle handle,
-                                     rocblas_operation trans,
-                                     rocblas_int m,
-                                     rocblas_int n,
-                                     rocblas_int nrhs,
-                                     rocblas_float_complex* const A[],
-                                     rocblas_int lda,
-                                     rocblas_stride stA,
-                                     rocblas_float_complex* const C[],
-                                     rocblas_int ldc,
-                                     rocblas_stride stC,
-                                     rocblas_int* info,
-                                     rocblas_int bc)
-{
-    assert(!STRIDED);
-    (void)stA;
-    (void)stC;
-    return rocsolver_cgels_batched(handle, trans, m, n, nrhs, A, lda, C, ldc, info, bc);
+inline rocblas_status
+rocsolver_gels(bool STRIDED, rocblas_handle handle, rocblas_operation trans,
+               rocblas_int m, rocblas_int n, rocblas_int nrhs,
+               rocblas_float_complex *const A[], rocblas_int lda, rocblas_stride stA,
+               rocblas_float_complex *const C[], rocblas_int ldc, rocblas_stride stC, 
+               rocblas_int *info, rocblas_int bc) {
+//  assert(!STRIDED);
+  (void)stA;
+  (void)stC;
+  return rocsolver_cgels_batched(handle, trans, m, n, nrhs, A,
+                                 lda, C, ldc, info, bc);
 }
 
-inline rocblas_status rocsolver_gels(bool STRIDED,
-                                     rocblas_handle handle,
-                                     rocblas_operation trans,
-                                     rocblas_int m,
-                                     rocblas_int n,
-                                     rocblas_int nrhs,
-                                     rocblas_double_complex* const A[],
-                                     rocblas_int lda,
-                                     rocblas_stride stA,
-                                     rocblas_double_complex* const C[],
-                                     rocblas_int ldc,
-                                     rocblas_stride stC,
-                                     rocblas_int* info,
-                                     rocblas_int bc)
-{
-    assert(!STRIDED);
-    (void)stA;
-    (void)stC;
-    return rocsolver_zgels_batched(handle, trans, m, n, nrhs, A, lda, C, ldc, info, bc);
+inline rocblas_status
+rocsolver_gels(bool STRIDED, rocblas_handle handle, rocblas_operation trans,
+               rocblas_int m, rocblas_int n, rocblas_int nrhs,
+               rocblas_double_complex *const A[], rocblas_int lda, rocblas_stride stA, 
+               rocblas_double_complex *const C[], rocblas_int ldc, rocblas_stride stC, 
+               rocblas_int *info, rocblas_int bc) {
+//  assert(!STRIDED);
+  (void)stA;
+  (void)stC;
+  return rocsolver_zgels_batched(handle, trans, m, n, nrhs, A,
+                                 lda, C, ldc, info, bc);
 }
 /********************************************************/
 

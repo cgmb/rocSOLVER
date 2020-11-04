@@ -32,8 +32,9 @@ rocblas_status rocsolver_gels_strided_batched_impl(rocblas_handle handle,
     // working with unshifted arrays
     const rocblas_int shiftA = 0;
     const rocblas_int shiftC = 0;
-    const rocblas_stride strideP = 0;
-    const bool optim_mem = true;
+
+    // contiguous pivot array 
+    const rocblas_stride strideP = sizeof(rocblas_int);
 
     size_t size_scalars, size_work_x_temp, size_workArr_temp_arr, size_diag_trfac_invA,
         size_trfact_workTrmm_invA_arr, size_ipiv;
@@ -45,6 +46,10 @@ rocblas_status rocsolver_gels_strided_batched_impl(rocblas_handle handle,
         return rocblas_set_optimal_device_memory_size(handle, size_scalars, size_work_x_temp,
                                                       size_workArr_temp_arr, size_diag_trfac_invA,
                                                       size_trfact_workTrmm_invA_arr, size_ipiv);
+
+    // always allocate all required memory for TRSM optimal performance
+    bool optim_mem = true;
+
     // memory workspace allocation
     void *scalars, *work_x_temp, *workArr_temp_arr, *diag_trfac_invA, *trfact_workTrmm_invA_arr,
         *ipiv;

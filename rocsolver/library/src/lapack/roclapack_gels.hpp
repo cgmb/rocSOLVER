@@ -28,7 +28,7 @@ void rocsolver_gels_getMemorySize(const rocblas_int m,
                                   size_t* size_ipiv)
 {
     // if quick return no workspace needed
-    if(m == 0 || n == 0 || batch_count == 0)
+    if(m == 0 || n == 0 || nrhs == 0 || batch_count == 0)
     {
         *size_scalars = 0;
         *size_work_x_temp = 0;
@@ -47,13 +47,14 @@ void rocsolver_gels_getMemorySize(const rocblas_int m,
     rocsolver_ormqr_unmqr_getMemorySize<T, BATCHED>(rocblas_side_left, m, nrhs, n, batch_count,
                                                     &ormqr_scalars, &ormqr_work, &ormqr_workArr,
                                                     &ormqr_trfact, &ormqr_workTrmm);
+    ROCSOLVER_ASSUME_X(geqrf_scalars == ormqr_scalars, "GEQRF and ORMQR use the same scalars");
 
     size_t trsm_x_temp, trsm_x_temp_arr, trsm_invA, trsm_invA_arr;
     rocblasCall_trsm_mem<BATCHED, T>(rocblas_side_left, n, nrhs, batch_count, &trsm_x_temp,
                                      &trsm_x_temp_arr, &trsm_invA, &trsm_invA_arr);
 
     // TODO: rearrange to minimize total size
-    *size_scalars = std::max(geqrf_scalars, ormqr_scalars);
+    *size_scalars = geqrf_scalars;
     *size_work_x_temp = std::max({geqrf_work, ormqr_work, trsm_x_temp});
     *size_workArr_temp_arr = std::max({geqrf_workArr, ormqr_workArr, trsm_x_temp_arr});
     *size_diag_trfac_invA = std::max({geqrf_diag, ormqr_trfact, trsm_invA});
@@ -80,12 +81,12 @@ rocblas_status rocsolver_gels_argCheck(rocblas_operation trans,
         return rocblas_status_invalid_value;
 
     // 2. invalid size
-    if(m < 0 || n < 0 || nrhs < 0 || m < n || lda < 1 || lda < m || ldc < 1 || ldc < m
-       || ldc < n /*|| batch_count < 0*/)
+    if(m < 0 || n < 0 || nrhs < 0 || m < n || lda < m || ldc < m
+       || ldc < n || batch_count < 0)
         return rocblas_status_invalid_size;
 
     // 3. invalid pointers
-    if((n && !A) || (nrhs && !C))
+    if((m*n && !A) || ((m*nrhs || n*nrhs) && !C))
         return rocblas_status_invalid_pointer;
 
     return rocblas_status_continue;
@@ -116,14 +117,23 @@ rocblas_status rocsolver_gels_template(rocblas_handle handle,
                                        void* trfact_workTrmm_invA_arr,
                                        bool optim_mem)
 {
-    // quick return
-    if(n == 0 || nrhs == 0 || batch_count == 0)
-    {
+    // quick return if zero instances in batch
+    if(batch_count == 0)
         return rocblas_status_success;
-    }
 
     hipStream_t stream;
     rocblas_get_stream(handle, &stream);
+
+    rocblas_int blocksReset = (batch_count - 1) / BLOCKSIZE + 1;
+    dim3 gridReset(blocksReset, 1, 1); 
+    dim3 threads(BLOCKSIZE, 1, 1); 
+
+    // info=0 (starting with a nonsingular matrix)
+    hipLaunchKernelGGL(reset_info, gridReset, threads, 0, stream, info, batch_count, 0);
+
+    // quick return if A or C are empty
+    if(m == 0 || n == 0 || nrhs == 0)
+        return rocblas_status_success;
 
     // everything must be executed with scalars on the host
     rocblas_pointer_mode old_mode;
@@ -139,16 +149,19 @@ rocblas_status rocsolver_gels_template(rocblas_handle handle,
         handle, rocblas_side_left, rocblas_operation_transpose, m, nrhs, n, A, shiftA, lda, strideA,
         ipiv, strideP, C, shiftC, ldc, strideC, batch_count, scalars, (T*)work_x_temp,
         (T*)workArr_temp_arr, (T*)diag_trfac_invA, (T**)trfact_workTrmm_invA_arr);
-    // do the equivalent of strtrs
 
-    // TODO: singularity check
+    // do the equivalent of strtrs
+    const rocblas_int check_threads = min(((n - 1) / 64 + 1) * 64, BLOCKSIZE);
+    hipLaunchKernelGGL(check_singularity<T>, dim3(batch_count, 1, 1), dim3(1, check_threads, 1), 
+        0, stream, n, A, shiftA, lda, strideA, info);
+
     const T one = 1; // constant 1 in host
-    // solve U*X = B, overwriting B with X
+    // solve U*X = C, overwriting C with X
     rocblasCall_trsm<BATCHED, T>(handle, rocblas_side_left, rocblas_fill_upper,
                                  rocblas_operation_none, rocblas_diagonal_non_unit, n, nrhs, &one,
                                  A, shiftA, lda, strideA, C, shiftC, ldc, strideC, batch_count,
                                  optim_mem, work_x_temp, workArr_temp_arr, diag_trfac_invA,
-                                 trfact_workTrmm_invA_arr /*, workArr ? */);
+                                 trfact_workTrmm_invA_arr);
 
     rocblas_set_pointer_mode(handle, old_mode);
     return rocblas_status_success;

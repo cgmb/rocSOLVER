@@ -59,13 +59,13 @@ public:
         , m_batch_count(batch_count)
     {
         bool valid_parameters = true;
-
         switch(this->m_storage)
         {
         case storage::block:
         {
             if(std::abs(this->m_stride) < this->m_n * std::abs(this->m_inc))
             {
+                rocblas_cerr << "invalid! stride (" << m_stride << ") is less than n (" << m_n << ") * abs(inc) (" << std::abs(m_inc) << ")" << std::endl;
                 valid_parameters = false;
             }
             break;
@@ -74,6 +74,7 @@ public:
         {
             if(std::abs(this->m_inc) < std::abs(this->m_stride) * this->m_batch_count)
             {
+                rocblas_cerr << "invalid!" << std::endl;
                 valid_parameters = false;
             }
             break;
@@ -82,6 +83,7 @@ public:
 
         if(valid_parameters)
         {
+                rocblas_cerr << "definitely valid" << std::endl;
             this->m_data = this->device_vector_setup();
         }
     }
