@@ -12,6 +12,8 @@
 #include <iostream>
 #include <limits>
 
+#include <rocblas.h>
+
 template <typename T, std::enable_if_t<!is_complex<T>, int> = 0>
 constexpr double get_epsilon()
 {
@@ -86,6 +88,11 @@ T* const* cast2constPointer(T** array)
     T* const* R = array;
     return R;
 }
+
+void init_scalars(float* scalars, hipStream_t stream);
+void init_scalars(double* scalars, hipStream_t stream);
+void init_scalars(rocblas_float_complex* scalars, hipStream_t stream);
+void init_scalars(rocblas_double_complex* scalars, hipStream_t stream);
 
 template <typename T, typename U, std::enable_if_t<!is_complex<T>, int> = 0>
 void print_device_matrix(const std::string name,

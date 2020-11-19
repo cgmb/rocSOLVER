@@ -116,6 +116,8 @@ rocblas_status rocsolver_sytrd_hetrd_template(rocblas_handle handle,
                                               E, strideE, tau, strideP, batch_count, scalars, work,
                                               norms, tmptau_W, workArr);
 
+    init_scalars(scalars, stream);
+
     // everything must be executed with scalars on the host
     rocblas_pointer_mode old_mode;
     rocblas_get_pointer_mode(handle, &old_mode);

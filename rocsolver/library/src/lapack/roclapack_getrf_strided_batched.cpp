@@ -71,8 +71,6 @@ rocblas_status rocsolver_getrf_strided_batched_impl(rocblas_handle handle,
     pivotval = mem[6];
     pivotidx = mem[7];
     iinfo = mem[8];
-    T sca[] = {-1, 0, 1};
-    RETURN_IF_HIP_ERROR(hipMemcpy((T*)scalars, sca, size_scalars, hipMemcpyHostToDevice));
 
     // execution
     return rocsolver_getrf_template<false, true, T, S>(

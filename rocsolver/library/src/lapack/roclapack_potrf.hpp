@@ -117,6 +117,8 @@ rocblas_status rocsolver_potrf_template(rocblas_handle handle,
     if(n == 0)
         return rocblas_status_success;
 
+    init_scalars(scalars, stream);
+
     // everything must be executed with scalars on the host
     rocblas_pointer_mode old_mode;
     rocblas_get_pointer_mode(handle, &old_mode);

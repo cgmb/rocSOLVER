@@ -93,6 +93,8 @@ rocblas_status rocsolver_orglq_unglq_template(rocblas_handle handle,
     hipStream_t stream;
     rocblas_get_stream(handle, &stream);
 
+    init_scalars(scalars, stream);
+
     // if the matrix is small, use the unblocked variant of the algorithm
     if(k <= ORGxx_UNGxx_SWITCHSIZE)
         return rocsolver_orgl2_ungl2_template<T>(handle, m, n, k, A, shiftA, lda, strideA, ipiv,

@@ -114,6 +114,8 @@ rocblas_status rocsolver_orm2l_unm2l_template(rocblas_handle handle,
     hipStream_t stream;
     rocblas_get_stream(handle, &stream);
 
+    init_scalars(scalars, stream);
+
     // determine limits and indices
     bool left = (side == rocblas_side_left);
     bool transpose = (trans != rocblas_operation_none);

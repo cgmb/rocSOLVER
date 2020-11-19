@@ -96,6 +96,8 @@ rocblas_status rocsolver_ormql_unmql_template(rocblas_handle handle,
     hipStream_t stream;
     rocblas_get_stream(handle, &stream);
 
+    init_scalars(scalars, stream);
+
     // if the matrix is small, use the unblocked variant of the algorithm
     if(k <= ORMxx_ORMxx_BLOCKSIZE)
         return rocsolver_orm2l_unm2l_template<T>(

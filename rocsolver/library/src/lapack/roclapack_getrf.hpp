@@ -144,6 +144,8 @@ rocblas_status rocsolver_getrf_template(rocblas_handle handle,
     if(m == 0 || n == 0)
         return rocblas_status_success;
 
+    init_scalars(scalars, stream);
+
     static constexpr bool ISBATCHED = BATCHED || STRIDED;
 
     // if the matrix is small, use the unblocked (level-2-blas) variant of the

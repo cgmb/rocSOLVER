@@ -755,6 +755,8 @@ rocblas_status rocsolver_getf2_template(rocblas_handle handle,
     if(m == 0 || n == 0)
         return rocblas_status_success;
 
+    init_scalars(scalars, stream);
+
 #ifdef OPTIMAL
     // Use optimized LU factorization for the right sizes
     if(n <= WAVESIZE)

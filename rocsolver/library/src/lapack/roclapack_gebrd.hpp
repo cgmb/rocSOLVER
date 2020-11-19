@@ -105,6 +105,8 @@ rocblas_status rocsolver_gebrd_template(rocblas_handle handle,
     hipStream_t stream;
     rocblas_get_stream(handle, &stream);
 
+    init_scalars(scalars, stream);
+
     T minone = -1;
     T one = 1;
     rocblas_int k = GEBRD_GEBD2_SWITCHSIZE;

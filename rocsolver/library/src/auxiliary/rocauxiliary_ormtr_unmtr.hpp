@@ -122,6 +122,8 @@ rocblas_status rocsolver_ormtr_unmtr_template(rocblas_handle handle,
     hipStream_t stream;
     rocblas_get_stream(handle, &stream);
 
+    init_scalars(scalars, stream);
+
     rocblas_int nq = side == rocblas_side_left ? m : n;
     rocblas_int cols, rows, colC, rowC;
     if(side == rocblas_side_left)

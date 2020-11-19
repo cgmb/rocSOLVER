@@ -97,6 +97,8 @@ rocblas_status rocsolver_geqrf_template(rocblas_handle handle,
     hipStream_t stream;
     rocblas_get_stream(handle, &stream);
 
+    init_scalars(scalars, stream);
+
     // if the matrix is small, use the unblocked (BLAS-levelII) variant of the
     // algorithm
     if(m <= GEQxF_GEQx2_SWITCHSIZE || n <= GEQxF_GEQx2_SWITCHSIZE)

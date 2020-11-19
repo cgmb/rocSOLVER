@@ -95,6 +95,8 @@ rocblas_status rocsolver_geql2_template(rocblas_handle handle,
     hipStream_t stream;
     rocblas_get_stream(handle, &stream);
 
+    init_scalars(scalars, stream);
+
     rocblas_int dim = min(m, n); // total number of pivots
 
     for(rocblas_int j = 0; j < dim; j++)

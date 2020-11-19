@@ -136,6 +136,8 @@ rocblas_status rocsolver_orgbr_ungbr_template(rocblas_handle handle,
     hipStream_t stream;
     rocblas_get_stream(handle, &stream);
 
+    init_scalars(scalars, stream);
+
     // if column-wise, compute orthonormal columns of matrix Q in the
     // bi-diagonalization of a m-by-k matrix A (given by gebrd)
     if(storev == rocblas_column_wise)

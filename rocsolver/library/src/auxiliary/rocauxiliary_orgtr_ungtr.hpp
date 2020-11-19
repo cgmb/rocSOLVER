@@ -104,6 +104,8 @@ rocblas_status rocsolver_orgtr_ungtr_template(rocblas_handle handle,
     hipStream_t stream;
     rocblas_get_stream(handle, &stream);
 
+    init_scalars(scalars, stream);
+
     rocblas_stride strideW = rocblas_stride(n - 1) * n / 2; // number of elements to copy
     rocblas_int ldw = n - 1;
     rocblas_int blocks = (n - 2) / BS + 1;

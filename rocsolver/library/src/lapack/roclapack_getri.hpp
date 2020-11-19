@@ -594,6 +594,8 @@ rocblas_status rocsolver_getri_template(rocblas_handle handle,
         return rocblas_status_success;
     }
 
+    init_scalars(scalars, stream);
+
     rocblas_int blocks = (n - 1) / 32 + 1;
     rocblas_int threads = min(((n - 1) / 64 + 1) * 64, BLOCKSIZE);
 

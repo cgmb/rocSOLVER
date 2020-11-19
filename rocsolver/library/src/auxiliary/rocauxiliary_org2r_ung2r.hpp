@@ -114,6 +114,8 @@ rocblas_status rocsolver_org2r_ung2r_template(rocblas_handle handle,
     hipStream_t stream;
     rocblas_get_stream(handle, &stream);
 
+    init_scalars(scalars, stream);
+
     // everything must be executed with scalars on the device
     rocblas_pointer_mode old_mode;
     rocblas_get_pointer_mode(handle, &old_mode);

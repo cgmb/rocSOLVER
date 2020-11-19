@@ -76,8 +76,6 @@ rocblas_status rocsolver_gesvd_strided_batched_impl(rocblas_handle handle,
     Y = mem[4];
     tau = mem[5];
     workArr = mem[6];
-    T sca[] = {-1, 0, 1};
-    RETURN_IF_HIP_ERROR(hipMemcpy((T*)scalars, sca, size_scalars, hipMemcpyHostToDevice));
 
     // execution
     return rocsolver_gesvd_template<false, true, T>(
