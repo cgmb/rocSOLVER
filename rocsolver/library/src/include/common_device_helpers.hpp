@@ -289,7 +289,7 @@ __global__ void copyshift_right(const bool copy,
     T* Wp = load_ptr_batch<T>(W, b, shiftW, strideW);
 
     // make first row the identity
-    if(i == 0 && j == 0)
+    if(i == 0 && j == 0 && !copy)
         Ap[0] = 1.0;
 
     if(i < dim && j < dim && j <= i)
@@ -333,7 +333,7 @@ __global__ void copyshift_left(const bool copy,
     T* Wp = load_ptr_batch<T>(W, b, shiftW, strideW);
 
     // make last row the identity
-    if(i == 0 && j == 0)
+    if(i == 0 && j == 0 && !copy)
         Ap[dim + dim * lda] = 1.0;
 
     if(i < dim && j < dim && i <= j)
@@ -378,7 +378,7 @@ __global__ void copyshift_down(const bool copy,
     T* Wp = load_ptr_batch<T>(W, b, shiftW, strideW);
                 
     // make first column the identity
-    if(i == 0 && j == 0)
+    if(i == 0 && j == 0 && !copy)
         Ap[0] = 1.0;
     
     if(i < dim && j < dim && i <= j)
