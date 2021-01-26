@@ -5,10 +5,6 @@
 
 #include "testing_gels.hpp"
 
-using ::testing::Combine;
-using ::testing::TestWithParam;
-using ::testing::Values;
-using ::testing::ValuesIn;
 using namespace std;
 
 typedef std::tuple<int, int, int, int, int> gels_params_A;
@@ -94,13 +90,8 @@ Arguments gels_setup_arguments(gels_tuple tup)
     return arg;
 }
 
-class GELS : public ::TestWithParam<gels_tuple>
+struct GELS : testing::TestWithParam<gels_tuple>
 {
-protected:
-    GELS() {}
-    virtual void SetUp() {}
-    virtual void TearDown() {}
-
     template <bool BATCHED, bool STRIDED, typename T>
     void run_tests(rocblas_int bc)
     {
@@ -187,11 +178,12 @@ TEST_P(GELS, strided_batched__double_complex)
 // daily_lapack tests normal execution with medium to large sizes
 INSTANTIATE_TEST_SUITE_P(daily_lapack,
                          GELS,
-                         Combine(ValuesIn(large_matrix_sizeA_range),
-                                 ValuesIn(large_matrix_sizeB_range)));
+                         testing::Combine(testing::ValuesIn(large_matrix_sizeA_range),
+                                          testing::ValuesIn(large_matrix_sizeB_range)));
 
 // checkin_lapack tests normal execution with small sizes, invalid sizes,
 // quick returns, and corner cases
 INSTANTIATE_TEST_SUITE_P(checkin_lapack,
                          GELS,
-                         Combine(ValuesIn(matrix_sizeA_range), ValuesIn(matrix_sizeB_range)));
+                         testing::Combine(testing::ValuesIn(matrix_sizeA_range),
+                                          testing::ValuesIn(matrix_sizeB_range)));
