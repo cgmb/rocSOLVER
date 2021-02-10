@@ -30,7 +30,6 @@ Options:
                               (Default is /opt/rocm)
 
   --rocblas_dir <blasdir>     Specify path to the companion rocBLAS-library root directory.
-                              Use only absolute paths.
                               (Default is /opt/rocm/rocblas)
 
   --cleanup                   Pass this flag to remove intermediary build files after build and reduce disk usage
@@ -435,6 +434,9 @@ elif [[ "${build_type}" == Release ]]; then
 else
   rm -rf -- "${build_dir}/debug"
 fi
+
+# resolve relative paths
+rocblas_dir="$(make_absolute_path "${rocblas_dir}")"
 
 # Default cmake executable is called cmake
 cmake_executable=cmake
