@@ -41,9 +41,12 @@ Options:
 
   -i | --install              Pass this flag to generate and install library package after build.
 
-  -d | --dependencies         Pass this flag to also build and install external dependencies.
-                              Dependecies are to be installed in /usr/local. This should be done only once.
-                              (this does not install rocBLAS nor ROCm software stack)
+  -d | --dependencies         Pass this flag to install external dependencies. Any dependencies built from source
+                              are installed in /usr/local. This option must not be used while other ROCm libraries
+                              are being built (and equivalent flags on other ROCm libaries must not be used while
+                              rocSOLVER is being built).
+                              Client dependencies will only be installed if combined with --clients.
+                              This does not install rocBLAS or the ROCm software stack.
 
   -c | --clients              Pass this flag to also build the library clients. Specifically, this builds
                               rocsolver-test, rocsolver-benchmark, and the sample programs.
