@@ -2,13 +2,7 @@
 # Copyright (c) 2019-2021 Advanced Micro Devices, Inc.
 # ########################################################################
 
-# For debugging, uncomment this
-# set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -O0" )
-
-# Linking lapack library requires fortran flags
-enable_language( Fortran )
 find_package( cblas REQUIRED CONFIG )
-
 find_package( GTest REQUIRED )
 
 set(roclapack_test_source

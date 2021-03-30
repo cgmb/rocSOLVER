@@ -24,6 +24,10 @@ endif()
 unset(ENV{ROCM_BUILD_ID})
 
 project( rocsolver LANGUAGES CXX )
+if( BUILD_CLIENTS_TESTS OR BUILD_CLIENTS_BENCHMARKS OR BUILD_CLIENTS_SAMPLES )
+  enable_language(C) # for samples
+  enable_language(Fortran) # for samples and to link cblas
+endif( )
 
 # Add our CMake helper files to the lookup path
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
