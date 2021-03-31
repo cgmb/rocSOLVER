@@ -24,7 +24,11 @@
 #include <string>
 #include <sys/stat.h>
 #include <thread>
-#include <unistd.h>
+#ifdef _WIN32
+# include <io.h>
+#else
+# include <unistd.h>
+#endif
 #include <utility>
 
 namespace ROCSOLVER_COMMON_NAMESPACE
@@ -237,14 +241,14 @@ public:
     // Implemented as singleton to avoid the static initialization order fiasco
     static rocsolver_ostream& cout()
     {
-        thread_local rocsolver_ostream cout{STDOUT_FILENO};
+        thread_local rocsolver_ostream cout{_fileno(stdout)};
         return cout;
     }
 
     // Implemented as singleton to avoid the static initialization order fiasco
     static rocsolver_ostream& cerr()
     {
-        thread_local rocsolver_ostream cerr{STDERR_FILENO};
+        thread_local rocsolver_ostream cerr{_fileno(stderr)};
         return cerr;
     }
 

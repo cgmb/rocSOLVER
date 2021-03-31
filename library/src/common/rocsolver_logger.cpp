@@ -6,8 +6,8 @@
 #include "rocblascommon/utility.hpp"
 #include <cerrno>
 #include <climits>
+#include <cstdio>
 #include <cstdlib>
-#include <sys/time.h>
 
 #define STRINGIFY(s) STRINGIFY_HELPER(s)
 #define STRINGIFY_HELPER(s) #s
@@ -45,7 +45,7 @@ std::unique_ptr<rocsolver_ostream>
         return os;
     }
     else
-        return std::make_unique<rocsolver_ostream>(STDERR_FILENO);
+        return std::make_unique<rocsolver_ostream>(_fileno(stderr));
 }
 
 /***************************************************************************
