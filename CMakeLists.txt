@@ -7,18 +7,15 @@ cmake_minimum_required( VERSION 3.8 )
 set( CMAKE_BUILD_TYPE_INIT "Release" )
 set( CMAKE_Fortran_COMPILER_INIT "gfortran" )
 
-set( CMAKE_CXX_STANDARD 14 )
-set( CMAKE_CXX_EXTENSIONS OFF )
-set( CMAKE_CXX_STANDARD_REQUIRED ON )
-
-# ROCM_BUILD_ID is added to the package name by rocm-cmake. Unsetting it prevents that.
-unset(ENV{ROCM_BUILD_ID})
-
 project( rocsolver LANGUAGES CXX )
 if( BUILD_CLIENTS_TESTS OR BUILD_CLIENTS_BENCHMARKS OR BUILD_CLIENTS_SAMPLES )
   enable_language(C) # for samples
   enable_language(Fortran) # for samples and to link cblas
 endif( )
+
+set( CMAKE_CXX_STANDARD 14 )
+set( CMAKE_CXX_EXTENSIONS OFF )
+set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
 # Add our CMake helper files to the lookup path
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
@@ -30,6 +27,9 @@ find_package(Threads REQUIRED)
 # ########################################################################
 # Main
 # ########################################################################
+
+# ROCM_BUILD_ID is added to the package name by rocm-cmake. Unsetting it prevents that.
+unset(ENV{ROCM_BUILD_ID})
 
 # get rocm-cmake
 include( get-rocm-cmake )
