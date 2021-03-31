@@ -4,21 +4,12 @@
 
 cmake_minimum_required( VERSION 3.8 )
 
+set( CMAKE_BUILD_TYPE_INIT "Release" )
+set( CMAKE_Fortran_COMPILER_INIT "gfortran" )
+
 set( CMAKE_CXX_STANDARD 14 )
 set( CMAKE_CXX_EXTENSIONS OFF )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
-
-# This has to be initialized before the project() command appears
-# Set the default of CMAKE_BUILD_TYPE to Release
-if( NOT DEFINED CMAKE_CONFIGURATION_TYPES AND NOT DEFINED CMAKE_BUILD_TYPE )
-  set( CMAKE_BUILD_TYPE Release CACHE STRING
-    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-  )
-endif()
-
-if ( NOT DEFINED CMAKE_Fortran_COMPILER AND NOT DEFINED ENV{FC} )
-  set( CMAKE_Fortran_COMPILER  "gfortran" )
-endif()
 
 # ROCM_BUILD_ID is added to the package name by rocm-cmake. Unsetting it prevents that.
 unset(ENV{ROCM_BUILD_ID})
