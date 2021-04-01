@@ -9,6 +9,21 @@ namespace ROCSOLVER_COMMON_NAMESPACE
 static void rocsolver_abort_once [[noreturn]] ();
 }
 
+#ifdef _WIN32
+#include <windows.h>
+#include <io.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+//#define FDOPEN(A, B) _fdopen(A, B)
+#define OPEN(A) _open(A, _O_WRONLY | _O_CREAT | _O_TRUNC | _O_APPEND, _S_IREAD | _S_IWRITE);
+//#define CLOSE(A) _close(A)
+#else
+//#define FDOPEN(A, B) fdopen(A, B)
+#define OPEN(A) open(A, O_WRONLY | O_CREAT | O_TRUNC | O_APPEND | O_CLOEXEC, 0644);
+//#define CLOSE(A) close(A)
+#endif
+
 #include "rocsolver_ostream.hpp"
 #include <csignal>
 #include <fcntl.h>
@@ -109,9 +124,7 @@ rocsolver_ostream::rocsolver_ostream(int fd)
 {
     if(!worker_ptr)
     {
-#ifndef _WIN32
-        dprintf(STDERR_FILENO, "Error: Bad file descriptor %d\n", fd);
-#endif
+        fprintf(stderr, "Error: Bad file descriptor %d\n", fd);
         rocsolver_abort();
     }
 }
@@ -120,11 +133,11 @@ rocsolver_ostream::rocsolver_ostream(int fd)
 // truncation
 rocsolver_ostream::rocsolver_ostream(const char* filename)
 {
-    int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_APPEND | O_CLOEXEC, 0644);
+    int fd = OPEN(filename);
     worker_ptr = get_worker(fd);
     if(!worker_ptr)
     {
-        dprintf(STDERR_FILENO, "Cannot open %s: %m\n", filename);
+        fprintf(stderr, "Cannot open %s: %m\n", filename);
         rocsolver_abort();
     }
     close(fd);
