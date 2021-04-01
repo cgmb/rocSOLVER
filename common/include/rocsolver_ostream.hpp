@@ -22,10 +22,20 @@
 #include <queue>
 #include <sstream>
 #include <string>
-#include <sys/stat.h>
 #include <thread>
-#include <unistd.h>
 #include <utility>
+
+#ifndef _WIN32
+# include <unistd.h>
+# include <sys/stat.h>
+#else
+# ifndef STDOUT_FILENO
+#  define STDOUT_FILENO 1
+# endif
+# ifndef STDERR_FILENO
+#  define STDERR_FILENO 2
+# endif
+#endif
 
 namespace ROCSOLVER_COMMON_NAMESPACE
 {

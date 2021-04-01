@@ -23,6 +23,7 @@ namespace ROCSOLVER_COMMON_NAMESPACE
 // Abort function which is called only once by rocsolver_abort
 static void rocsolver_abort_once()
 {
+#ifndef _WIN32
     // Make sure the alarm and abort actions are default
     signal(SIGALRM, SIG_DFL);
     signal(SIGABRT, SIG_DFL);
@@ -45,6 +46,7 @@ static void rocsolver_abort_once()
 
     // Flush all
     fflush(NULL);
+#endif
 
     // Abort
     std::abort();
@@ -107,7 +109,9 @@ rocsolver_ostream::rocsolver_ostream(int fd)
 {
     if(!worker_ptr)
     {
+#ifndef _WIN32
         dprintf(STDERR_FILENO, "Error: Bad file descriptor %d\n", fd);
+#endif
         rocsolver_abort();
     }
 }
