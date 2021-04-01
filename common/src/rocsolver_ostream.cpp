@@ -361,7 +361,11 @@ void rocsolver_ostream::worker::thread_function()
 rocsolver_ostream::worker::worker(int fd)
 {
     // The worker duplicates the file descriptor (RAII)
+#ifdef _WIN32
+    fd = _dup(fd);
+#else
     fd = fcntl(fd, F_DUPFD_CLOEXEC, 0);
+#endif
 
     // If the dup fails or fdopen fails, print error and abort
     if(fd == -1 || !(file = fdopen(fd, "a")))
