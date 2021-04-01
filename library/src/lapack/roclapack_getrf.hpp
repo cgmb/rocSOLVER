@@ -71,7 +71,7 @@ rocblas_int get_blksize(rocblas_int dim)
 }
 
 template <typename U>
-__global__ void getrf_check_singularity(const rocblas_int n,
+ROCBLAS_KERNEL void getrf_check_singularity(const rocblas_int n,
                                         const rocblas_int j,
                                         rocblas_int* ipivA,
                                         const rocblas_int shiftP,

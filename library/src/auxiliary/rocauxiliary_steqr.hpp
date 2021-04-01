@@ -24,7 +24,7 @@
     to compute the eigenvalues of a symmetric tridiagonal matrix given by D
     and E **/
 template <typename S, typename T, typename U>
-__global__ void steqr_kernel(const rocblas_int n,
+ROCBLAS_KERNEL void steqr_kernel(const rocblas_int n,
                              S* DD,
                              const rocblas_stride strideD,
                              S* EE,

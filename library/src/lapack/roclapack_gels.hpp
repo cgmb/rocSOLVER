@@ -21,7 +21,7 @@ enum copymat_direction
 };
 
 template <typename T, typename U>
-__global__ void masked_copymat(copymat_direction direction,
+ROCBLAS_KERNEL void masked_copymat(copymat_direction direction,
                                const rocblas_int m,
                                const rocblas_int n,
                                U A,

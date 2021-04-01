@@ -14,7 +14,7 @@
 #include "rocsolver.h"
 
 template <typename U>
-__global__ void chk_positive(rocblas_int* iinfo, rocblas_int* info, int j, rocblas_int batch_count)
+ROCBLAS_KERNEL void chk_positive(rocblas_int* iinfo, rocblas_int* info, int j, rocblas_int batch_count)
 {
     int id = hipBlockIdx_x * hipBlockDim_x + hipThreadIdx_x;
 
