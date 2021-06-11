@@ -553,7 +553,10 @@ if [[ "${build_sanitizer}" == true ]]; then
 fi
 
 if [[ "${build_clients}" == true ]]; then
-  cmake_client_options="${cmake_client_options} -DBUILD_CLIENTS_TESTS=ON -DBUILD_CLIENTS_BENCHMARKS=ON -DBUILD_CLIENTS_SAMPLES=ON"
+  cmake_client_options="${cmake_client_options} -DBUILD_CLIENTS_TESTS=ON -DBUILD_CLIENTS_BENCHMARKS=ON"
+  if [[ "${build_sanitizer}" == false ]]; then
+    cmake_client_options="${cmake_client_options} -DBUILD_CLIENTS_SAMPLES=ON"
+  fi
 fi
 
 if [[ "${build_library}" == false ]]; then
