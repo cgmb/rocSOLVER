@@ -2,7 +2,7 @@
 # Copyright (c) 2019-2021 Advanced Micro Devices, Inc.
 # ########################################################################
 
-cmake_minimum_required( VERSION 3.13 )
+cmake_minimum_required( VERSION 3.14 )
 
 set( CMAKE_CXX_STANDARD 14 )
 set( CMAKE_CXX_EXTENSIONS OFF )
@@ -32,7 +32,17 @@ list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-find_package(fmt REQUIRED)
+
+# Get libfmt
+include(CPM)
+CPMFindPackage(
+  NAME fmt
+  VERSION 7.1
+  OPTIONS
+    "CMAKE_POSITION_INDEPENDENT_CODE ON"
+  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+  GIT_TAG 7bdf0628b1276379886c7f6dda2cef2b3b374f0b # 7.1.3
+)
 
 # ########################################################################
 # Main
