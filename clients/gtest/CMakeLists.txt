@@ -9,7 +9,16 @@
 enable_language( Fortran )
 find_package( cblas REQUIRED CONFIG )
 
-find_package( GTest REQUIRED )
+CPMFindPackage(
+  NAME GTest
+  VERSION 1.10.0
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG 703bd9caab50b139428cea1aaff9974ebee5742e # release-1.10.0
+  EXCLUDE_FROM_ALL ON
+)
+if(NOT TARGET GTest::GTest)
+  add_library(GTest::GTest ALIAS gtest)
+endif()
 
 set(roclapack_test_source
     # linear systems solvers
