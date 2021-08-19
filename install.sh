@@ -540,6 +540,10 @@ cmake_common_options+=(
   "-DCPACK_PACKAGING_INSTALL_PREFIX=${install_dir}"
   '-DROCSOLVER_EMBED_FMT=ON'
   "-DCMAKE_BUILD_TYPE=${build_type}"
+  '-DCMAKE_TOOLCHAIN_FILE=/home/cgmb/ws/vcpkg/scripts/buildsystems/vcpkg.cmake'
+  '-DVCPKG_PREFER_SYSTEM_LIBS=OFF'
+  '-DVCPKG_TARGET_TRIPLET=x64-linux'
+  '-DVCPKG_MANIFEST_FEATURES=tests'
 )
 
 if [[ -n "${rocblas_dir+x}" ]]; then

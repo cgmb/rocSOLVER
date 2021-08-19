@@ -20,8 +20,12 @@ endif()
 
 if(BUILD_CLIENTS_BENCHMARKS OR BUILD_CLIENTS_TESTS)
   # Linking lapack library requires fortran flags
-  find_package(cblas REQUIRED CONFIG)
-  target_include_directories(cblas SYSTEM INTERFACE ${CBLAS_INCLUDE_DIRS})
+  if(VCPKG_TARGET_TRIPLET)
+    find_package(lapack REQUIRED)
+  else()
+    find_package(cblas REQUIRED CONFIG)
+    target_include_directories(cblas SYSTEM INTERFACE ${CBLAS_INCLUDE_DIRS})
+  endif()
 
   add_library(clients-common INTERFACE)
   target_include_directories(clients-common INTERFACE
@@ -29,6 +33,15 @@ if(BUILD_CLIENTS_BENCHMARKS OR BUILD_CLIENTS_TESTS)
     ${CMAKE_CURRENT_SOURCE_DIR}/include
   )
   target_link_libraries(clients-common INTERFACE fmt::fmt)
+  if(VCPKG_TARGET_TRIPLET)
+    target_link_libraries(clients-common INTERFACE lapack)
+  else()
+    target_link_libraries(clients-common INTERFACE
+      cblas
+      lapack
+      blas
+    )
+  endif()
   set(common_source_files
     common/lapack_host_reference.cpp
     rocblascommon/utility.cpp
