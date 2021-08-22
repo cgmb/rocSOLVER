@@ -8,48 +8,49 @@
 
 #include <rocblas.h>
 
+#include "FortranCInterface.h"
 #include "clientcommon.hpp"
 
 /* LAPACK fortran library functionality */
 
 extern "C" {
-float slange_(char* norm_type, int* m, int* n, float* A, int* lda, float* work);
-double dlange_(char* norm_type, int* m, int* n, double* A, int* lda, double* work);
-float clange_(char* norm_type, int* m, int* n, rocblas_float_complex* A, int* lda, float* work);
-double zlange_(char* norm_type, int* m, int* n, rocblas_double_complex* A, int* lda, double* work);
+float slange(char* norm_type, int* m, int* n, float* A, int* lda, float* work);
+double dlange(char* norm_type, int* m, int* n, double* A, int* lda, double* work);
+float clange(char* norm_type, int* m, int* n, rocblas_float_complex* A, int* lda, float* work);
+double zlange(char* norm_type, int* m, int* n, rocblas_double_complex* A, int* lda, double* work);
 
-void daxpy_(int* n, double* alpha, double* x, int* incx, double* y, int* incy);
-void zaxpy_(int* n,
-            rocblas_double_complex* alpha,
-            rocblas_double_complex* x,
-            int* incx,
-            rocblas_double_complex* y,
-            int* incy);
+void daxpy(int* n, double* alpha, double* x, int* incx, double* y, int* incy);
+void zaxpy(int* n,
+           rocblas_double_complex* alpha,
+           rocblas_double_complex* x,
+           int* incx,
+           rocblas_double_complex* y,
+           int* incy);
 }
 
 inline float xlange(char* norm_type, int* m, int* n, float* A, int* lda, float* work)
 {
-    return slange_(norm_type, m, n, A, lda, work);
+    return slange(norm_type, m, n, A, lda, work);
 }
 
 inline double xlange(char* norm_type, int* m, int* n, double* A, int* lda, double* work)
 {
-    return dlange_(norm_type, m, n, A, lda, work);
+    return dlange(norm_type, m, n, A, lda, work);
 }
 
 inline float xlange(char* norm_type, int* m, int* n, rocblas_float_complex* A, int* lda, float* work)
 {
-    return clange_(norm_type, m, n, A, lda, work);
+    return clange(norm_type, m, n, A, lda, work);
 }
 
 inline double xlange(char* norm_type, int* m, int* n, rocblas_double_complex* A, int* lda, double* work)
 {
-    return zlange_(norm_type, m, n, A, lda, work);
+    return zlange(norm_type, m, n, A, lda, work);
 }
 
 inline void xaxpy(int* n, double* alpha, double* x, int* incx, double* y, int* incy)
 {
-    return daxpy_(n, alpha, x, incx, y, incy);
+    return daxpy(n, alpha, x, incx, y, incy);
 }
 
 inline void xaxpy(int* n,
@@ -59,7 +60,7 @@ inline void xaxpy(int* n,
                   rocblas_double_complex* y,
                   int* incy)
 {
-    return zaxpy_(n, alpha, x, incx, y, incy);
+    return zaxpy(n, alpha, x, incx, y, incy);
 }
 
 /* Norm of error functions */
