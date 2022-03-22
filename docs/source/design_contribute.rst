@@ -15,5 +15,5 @@ bug fixes, documentation additions, performance notes, or other improvements, we
 collaboration with our users. We can build better solutions together.
 
 For the most up-to-date guidelines, please refer to
-`CONTRIBUTING.md <https://github.com/ROCmSoftwarePlatform/rocSOLVER/blob/develop/CONTRIBUTING.md>`_
+`CONTRIBUTING.rst <https://github.com/ROCmSoftwarePlatform/rocSOLVER/blob/develop/CONTRIBUTING.rst>`_
 on the ``develop`` branch of the rocSOLVER GitHub repository.
