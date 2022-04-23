@@ -1,5 +1,5 @@
 # ########################################################################
-# Copyright (c) 2016-2021 Advanced Micro Devices, Inc.
+# Copyright (c) 2016-2022 Advanced Micro Devices, Inc.
 # ########################################################################
 
 if(UNIX AND NOT BUILD_ADDRESS_SANITIZER)
@@ -15,6 +15,15 @@ if(BUILD_FORTRAN_SAMPLES)
   )
 endif()
 
+set(BUILD_HIP_SAMPLES OFF)
+if(CMAKE_VERSION VERSION_GREATER "3.21.2")
+  check_language(HIP)
+  if(CMAKE_HIP_COMPILER)
+    enable_language(HIP)
+    set(BUILD_HIP_SAMPLES ON)
+  endif()
+endif()
+
 # declare sample programs
 add_executable(example-c-basic
   example_basic.c
@@ -26,6 +35,11 @@ if(BUILD_FORTRAN_SAMPLES)
   add_executable(example-fortran-basic
     example_basic.f90
     $<TARGET_OBJECTS:rocblas_module>
+  )
+endif()
+if(BUILD_HIP_SAMPLES)
+  add_executable(example-hip-basic
+    example_basic.hip
   )
 endif()
 add_executable(example-c-hmm
@@ -57,6 +71,11 @@ if(BUILD_FORTRAN_SAMPLES)
     example-fortran-basic
   )
 endif()
+if(BUILD_HIP_SAMPLES)
+  set(hip_samples
+    example-hip-basic
+  )
+endif()
 
 # set flags for building the sample programs
 foreach(exe ${c_samples} ${cpp_samples} ${fortran_samples})
@@ -77,5 +96,13 @@ foreach(exe ${c_samples})
     C_STANDARD 99
     C_STANDARD_REQUIRED ON
     C_EXTENSIONS OFF
+  )
+endforeach()
+
+foreach(exe ${hip_samples})
+  set_target_properties(${exe} PROPERTIES
+    HIP_STANDARD 11
+    HIP_STANDARD_REQUIRED ON
+    HIP_EXTENSIONS OFF
   )
 endforeach()
