@@ -2,6 +2,8 @@
 # Copyright (c) 2016-2022 Advanced Micro Devices, Inc.
 # ########################################################################
 
+include(CheckLanguage)
+
 if(UNIX AND NOT BUILD_ADDRESS_SANITIZER)
   set(BUILD_FORTRAN_SAMPLES ON)
 else()
