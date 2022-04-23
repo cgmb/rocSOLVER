@@ -19,7 +19,7 @@ def runCI =
     prj.timeout.test = 45
     prj.defaults.ccache = true
     // customize for project
-    prj.paths.build_command = './install.sh -c --cmake-arg -DWERROR=ON'
+    prj.paths.build_command = 'HIPCXX=/opt/rocm/llvm/bin/clang++ ./install.sh -c --cmake-arg -DWERROR=ON --cmake-arg -DBUILD_HIP_SAMPLES=ON'
 
     // Define test architectures, optional rocm version argument is available
     def nodes = new dockerNodes(nodeDetails, jobName, prj)

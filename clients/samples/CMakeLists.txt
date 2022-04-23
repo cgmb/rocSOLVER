@@ -17,8 +17,13 @@ if(BUILD_FORTRAN_SAMPLES)
   )
 endif()
 
-set(BUILD_HIP_SAMPLES OFF)
-if(CMAKE_VERSION VERSION_GREATER "3.21.2")
+if(DEFINED BUILD_HIP_SAMPLES)
+  # if explicitly specified, feature is required
+  if(BUILD_HIP_SAMPLES)
+    enable_language(HIP)
+  endif()
+elseif(CMAKE_VERSION VERSION_GREATER "3.21.2")
+  # if not explicitly specified, enable if possible
   check_language(HIP)
   if(CMAKE_HIP_COMPILER)
     enable_language(HIP)
