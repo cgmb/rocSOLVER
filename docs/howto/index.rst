@@ -11,8 +11,11 @@ How-To
 This section provides guides on how to use the rocSOLVER library and its
 different utilities.
 
-* :ref:`using`
-* :ref:`memory`
-* :ref:`logging-label`
-* :ref:`clients`
-* :ref:`contribute`
+.. toctree::
+   :maxdepth: 1
+
+   using
+   memory
+   logging
+   clients
+   contribute

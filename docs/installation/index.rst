@@ -8,6 +8,9 @@
 Installation
 ********************************************************************
 
-This section provides a guide to install rocSOLVER in different systems. 
+This section provides a guide to install rocSOLVER in different systems.
 
-* :ref:`install-linux`
+.. toctree::
+   :maxdepth: 1
+
+   installlinux

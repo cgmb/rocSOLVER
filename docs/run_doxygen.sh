@@ -3,9 +3,8 @@
 set -eu
 
 # Make this directory the PWD
-cd "$(dirname "${BASH_SOURCE[0]}")"
+cd "$(dirname "${BASH_SOURCE[0]}")"/doxygen
 
 # Build the doxygen info
 rm -rf docBin
-cd doxygen
 doxygen Doxyfile
