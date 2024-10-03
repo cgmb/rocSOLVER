@@ -1,0 +1,72 @@
+{
+  "version": 9,
+  "configurePresets": [
+    {
+      "name": "rocm-release-linux",
+      "displayName": "Linux Release Config",
+      "description": "ROCm release builds",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "AMDGPU_TARGETS": "gfx900;gfx906;gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030;gfx1100;gfx1101;gfx1102;gfx1151",
+        "GPU_TARGETS": "gfx900;gfx906;gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030;gfx1100;gfx1101;gfx1102;gfx1151",
+        "CMAKE_HIP_ARCHITECTURES": "gfx900;gfx906;gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030;gfx1100;gfx1101;gfx1102;gfx1151",
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_INSTALL_PREFIX": "/opt/rocm",
+        "CPACK_SET_DESTDIR": false,
+        "CMAKE_MODULE_PATH": "$env{ROCM_PATH}/lib/cmake/hip;$env{ROCM_PATH}/hip/cmake",
+        "CMAKE_C_COMPILER": "/opt/rocm/bin/amdclang",
+        "CMAKE_CXX_COMPILER": "/opt/rocm/bin/amdclang++",
+        "CMAKE_HIP_COMPILER": "/opt/rocm/bin/amdclang++"
+      },
+      "environment": {
+        "PATH": "$env{ROCM_PATH}${pathListSep}$penv{PATH}"
+      }
+    },
+    {
+      "name": "rocm-release-linux-asan",
+      "inherits": "rocm-release-linux",
+      "displayName": "Linux Release Config with AddressSanitizer",
+      "description": "Linux release build with debug symbols and AddressSanitizer",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cacheVariables": {
+        "AMDGPU_TARGETS": "gfx900:xnack+;gfx906:xnack+;gfx908:xnack+;gfx90a:xnack+;gfx940:xnack+;gfx941:xnack+;gfx942:xnack+",
+        "BUILD_ADDRESS_SANITIZER": true,
+        "CMAKE_INSTALL_PREFIX": "/opt/rocm",
+        "CMAKE_INSTALL_LIBDIR": "lib/asan",
+        "CMAKE_PREFIX_PATH": "$env{ROCM_PATH};lib/asan;$env{ROCM_PATH}/llvm;$env{ROCM_PATH}",
+        "ENABLE_ASAN_PACKAGING": "ON",
+        "CMAKE_SHARED_LINKER_FLAGS_INIT": "-Wl,--enable-new-dtags,--build-id=sha1,--rpath,$env{ROCM_ASAN_LIB_RPATH}"
+      },
+      "environment": {
+        "CXX": "/opt/rocm/bin/amdclang++",
+        "PATH": "/opt/rocm/bin:$penv{PATH}",
+        "CFLAGS": "-fsanitize=address -shared-libasan -g -gdwarf-4",
+        "CXXFLAGS": "-fsanitize=address -shared-libasan -g -gdwarf-4",
+        "LDFLAGS": "-Wl,--enable-new-dtags -fuse-ld=lld -fsanitize=address -shared-libasan -g -Wl,--build-id=sha1 -L$ROCM_INSTALL_PATH/lib/asan"
+      }
+    },
+    {
+      "name": "rocm-release-win",
+      "displayName": "Windows Release Config",
+      "description": "ROCm release builds on Windows",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "AMDGPU_TARGETS": {
+          "type": "STRING",
+          "value": "gfx1030;gfx1100;gfx1101;gfx1102;gfx1151"
+        },
+        "CMAKE_INSTALL_PREFIX": "c:/hipSDK",
+        "CMAKE_C_COMPILER": "c:/hipSDK/bin/amdclang",
+        "CMAKE_CXX_COMPILER": "c:/hipSDK/bin/amdclang++",
+        "CMAKE_HIP_COMPILER": "c:/hipSDK/bin/amdclang++"
+      },
+      "environment": {
+        "CXX": "C:/hipSDK/bin/amdclang++",
+        "PATH": "C:/hipSDK/bin:$penv{PATH}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "version": 9,
+  "include": [
+    "ROCmCMakePresets.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "release-linux",
+      "displayName": "Linux Release Config",
+      "description": "ROCm release builds",
+      "inherits": "rocm-release-linux",
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "rocsolver-install",
+        "CPACK_PACKAGING_INSTALL_PREFIX": "/opt/rocm",
+        "OPTIMAL": "OFF",
+        "BUILD_WITH_SPARSE": "OFF",
+        "CMAKE_SHARED_LINKER_FLAGS": ""
+      }
+    }
+  ]
+}
