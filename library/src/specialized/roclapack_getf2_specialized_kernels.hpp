@@ -538,6 +538,52 @@ ROCSOLVER_KERNEL void getf2_scale_update_kernel(const rocblas_int m,
 /*************************************************************
     Launchers of specilized  kernels
 *************************************************************/
+/*
+    getf2_npvt_small_kernel(const rocblas_int m,
+                            U AA,
+                            const rocblas_int shiftA,
+                            const rocblas_int lda,
+                            const rocblas_stride strideA,
+                            rocblas_int* infoA,
+                            const rocblas_int batch_count,
+                            const rocblas_int offset)
+*/
+template <rocblas_int DIM_START, rocblas_int DIM_END, typename T, typename U>
+void getf2_launch_small(const rocblas_int m,
+                       U AA,
+                       const rocblas_int shiftA,
+                       const rocblas_int lda,
+                       const rocblas_stride strideA,
+                       rocblas_int* ipivA,
+                       const rocblas_int shiftP,
+                       const rocblas_stride strideP,
+                       rocblas_int* infoA,
+                       const rocblas_int batch_count,
+                       const rocblas_int offset,
+                       rocblas_int* permut_idx,
+                       const rocblas_stride stridePI)
+{
+#define RUN_LUFACT_SMALL(DIM)                                                                      \
+    if(pivot)                                                                                      \
+        ROCSOLVER_LAUNCH_KERNEL((getf2_small_kernel<DIM, T>), grid, block, lmemsize, stream, m, A, \
+                                shiftA, lda, strideA, ipiv, shiftP, strideP, info, batch_count,    \
+                                offset, permut_idx, stride);                                       \
+    else                                                                                           \
+        ROCSOLVER_LAUNCH_KERNEL((getf2_npvt_small_kernel<DIM, T>), grid, block, lmemsize, stream,  \
+                                m, A, shiftA, lda, strideA, info, batch_count, offset)
+
+    switch(n)
+    {
+    case 1: RUN_LUFACT_SMALL(1); break;
+    case 2: RUN_LUFACT_SMALL(2); break;
+    case 3: RUN_LUFACT_SMALL(3); break;
+    case 4: RUN_LUFACT_SMALL(4); break;
+    case 5: RUN_LUFACT_SMALL(5); break;
+    case 6: RUN_LUFACT_SMALL(6); break;
+    case 7: RUN_LUFACT_SMALL(7); break;
+    case 8: RUN_LUFACT_SMALL(8); break;
+    }
+}
 
 /** launcher of getf2_small_kernel **/
 template <typename T, typename U>
@@ -558,15 +604,6 @@ rocblas_status getf2_run_small(rocblas_handle handle,
                                rocblas_int* permut_idx,
                                const rocblas_stride stride)
 {
-#define RUN_LUFACT_SMALL(DIM)                                                                      \
-    if(pivot)                                                                                      \
-        ROCSOLVER_LAUNCH_KERNEL((getf2_small_kernel<DIM, T>), grid, block, lmemsize, stream, m, A, \
-                                shiftA, lda, strideA, ipiv, shiftP, strideP, info, batch_count,    \
-                                offset, permut_idx, stride);                                       \
-    else                                                                                           \
-        ROCSOLVER_LAUNCH_KERNEL((getf2_npvt_small_kernel<DIM, T>), grid, block, lmemsize, stream,  \
-                                m, A, shiftA, lda, strideA, info, batch_count, offset)
-
     // determine sizes
     int opval[] = {GETF2_OPTIM_NGRP};
     rocblas_int ngrp = (batch_count < 2 || m > 32) ? 1 : opval[m - 1];
